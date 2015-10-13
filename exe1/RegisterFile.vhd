@@ -69,10 +69,10 @@ begin
 		end if;
 	end process  Regfile_Proc;
 
-	read_data1 <= (others=>'0') when read_register1_addr="00000"
+	read_data1 <= (others=>'0') when read_register1_addr="00000000"
          else Regfile(to_integer(unsigned(read_register1_addr)));
 			
-	read_data2 <= (others=>'0') when read_register2_addr="00000"
+	read_data2 <= (others=>'0') when read_register2_addr="00000000"
          else Regfile(to_integer(unsigned(read_register2_addr)));
 
 end Behavioral;
