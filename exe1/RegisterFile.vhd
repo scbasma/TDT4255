@@ -34,7 +34,7 @@ entity RegisterFile is
 	generic (
 		ADDR_WIDTH : integer := 8;
 		DATA_WIDTH : integer := 32;
-		size : natural := 1024);
+		size : natural := 32);
 
 	port(
 			clk : in STD_LOGIC;
