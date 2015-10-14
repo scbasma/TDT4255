@@ -9,13 +9,13 @@ end entity tb_ALU;
 
 architecture behavioural of tb_ALU is
   
-  signal rt: signed(31 downto 0) := (others => '0');
+  signal rt: std_logic_vector(31 downto 0) := (others => '0');
 
-  signal rs: signed(31 downto 0) := (others => '0');
+  signal rs: std_logic_vector(31 downto 0) := (others => '0');
 
   signal alu_op: std_logic_vector(3 downto 0) := (others => '0');
 
-  signal alu_result: signed(31 downto 0) := (others => '0');
+  signal alu_result: std_logic_vector(31 downto 0) := (others => '0');
   
   signal zero: boolean := false;
 
@@ -40,36 +40,36 @@ begin
     ALU_TEST: process
     begin
       wait until rising_edge(clk);
-      rt <= to_signed(2, 32);
-      rs <= to_signed(2, 32);
+      rt <= std_logic_vector(to_signed(2, 32));
+      rs <= std_logic_vector(to_signed(2, 32));
       alu_op <= "0110"; -- SUB
       wait until falling_edge(clk);
-      check(alu_result = signed(rt) - signed(rs), "Subtraction failed");
+      check(alu_result = std_logic_vector(signed(rt) - signed(rs)), "Subtraction failed");
       report "Subtraction passed" severity note;
 		
 		
 		wait until rising_edge(clk);
-      rt <= to_signed(2, 32);
-      rs <= to_signed(2, 32);
+      rt <= std_logic_vector(to_signed(2, 32));
+      rs <= std_logic_vector(to_signed(2, 32));
       alu_op <= "0010"; -- ADD
       wait until falling_edge(clk);
-      check(alu_result = signed(rt) + signed(rs), "Addition failed");
+      check(alu_result = std_logic_vector(signed(rt) + signed(rs)), "Addition failed");
       report "Addition passed" severity note;
 		
 		
 		wait until rising_edge(clk);
-      rt <= to_signed(1, 32);
-      rs <= to_signed(2, 32);
+      rt <= std_logic_vector(to_signed(1, 32));
+      rs <= std_logic_vector(to_signed(2, 32));
       alu_op <= "0111"; -- ADD
       wait until falling_edge(clk);
-      check(alu_result = 1, "slt failed");
+      check(signed(alu_result) = 1, "slt failed");
 		
 		wait until rising_edge(clk);
-      rt <= to_signed(3, 32);
-      rs <= to_signed(2, 32);
+      rt <= std_logic_vector(to_signed(3, 32));
+      rs <= std_logic_vector(to_signed(2, 32));
       alu_op <= "0111"; -- ADD
       wait until falling_edge(clk);
-      check(alu_result = 0, "slt failed");
+      check(signed(alu_result) = 0, "slt failed");
       report "slt passed" severity note;
 		
 		report "Simulation completed" severity failure;
