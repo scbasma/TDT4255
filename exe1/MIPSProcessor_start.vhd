@@ -15,10 +15,9 @@ use IEEE.NUMERIC_STD.ALL;
 entity MIPSProcessor is
 	generic (
 		ADDR_WIDTH : integer := 8;
-		DATA_WIDTH : integer := 32
+		DATA_WIDTH : integer := 32;
 		regfile_size : natural := 32);
-	);
-	port (
+	port ( 
 		clk, reset 				: in std_logic;
 		processor_enable		: in std_logic;
 		imem_data_in			: in std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -37,15 +36,28 @@ architecture DummyArch of MIPSProcessor is
 	-- registers signals
 	signal read_data_1	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal read_data_2	: std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal write_data    : std_logic_vector(DATA_WIDTH-1 downto 0);	
+	signal write_data    : std_logic_vector(DATA_WIDTH-1 downto 0);
+   signal write_reg_add :  std_logic_vector(ADDR_WIDTH-1 downto 0);	
 	-- ALU signals
-	signal zero : boolean;	
-	signal data_2     : signed(31 downto 0);
-	signal alu_result : signed(31 downto 0); -- BECAREFUL alu result is a buffer signal
+	signal zero			:   boolean;	
+	signal data_2     : std_logic_vector(31 downto 0);
+	signal alu_result : std_logic_vector(31 downto 0); -- BECAREFUL alu result is a buffer signal
+	-- ALU Control signal
+	signal alu_op     : std_logic_vector(3 downto 0); 
 	-- Control unit signals
 	signal reg_write  : std_logic;
 	signal write_en   : std_logic;
-	signal alu_op     : std_logic_vector(1 downto 0);
+	signal op_code    : std_logic_vector(1 downto 0);
+	signal reg_dst    : std_logic;
+	signal branch     : std_logic;
+	signal jump			: std_logic;
+	signal mem_read   : std_logic;
+	signal mem_to_reg : std_logic;
+	signal alu_src    : std_logic;
+	-- SignExtend
+	signal extend_out : std_logic_vector(31 downto 0);
+	
+	
 	--
 begin
 
@@ -65,24 +77,23 @@ begin
 	dmem_address <= std_logic_vector(counterReg(7 downto 0));
 	dmem_data_out <= read_data_2;
 	
-	
 	SignExtend : entity work.SignExtend
 		port map( 
-			data_in => imem_data_in( 15 downto 0),
-         data_out => imem_address );
+			data_in  => imem_data_in( 15 downto 0),
+         data_out => extend_out);
 	
 	RegisterFile : entity work.RegisterFile
 		generic map(
 			ADDR_WIDTH => ADDR_WIDTH,
 			DATA_WIDTH => DATA_WIDTH,
-			size => regfile_size );
+			size => regfile_size )
 		port map(
 			clk => clk,
 			rst	=> rst,
 			RegWrite => reg_write,		
 			read_register1_addr => imem_data_in( 25 downto 21), 
 			read_register2_addr => imem_data_in( 20 downto 16),
-			write_register_addr => ,
+			write_register_addr => write_reg_add,
 			write_data	=> write_data,
 			read_data1	=> read_data_1,
 			read_data2	=> read_data_2);
@@ -97,9 +108,9 @@ begin
 			
 	ALU_Ctrl : entity ALU_Ctrl
 		port map(
-			op_code => ,
+			op_code => op_code,
 			instruction_funct => imem_data_in( 5 downto 0) ,			
-			alu_op => alu_op  );
+			alu_op =>  alu_op);
 	
 	program_counter : entity work.program_counter
 		port map(
@@ -116,13 +127,13 @@ begin
 		 rst => rst,	  
 		 instruction => imem_data_in(31 downto 26),
 		 write_en   => write_en,
-		 reg_dst    => ,
-		 branch     => ,
-		 jump			=> ,
-		 mem_read    => ,
-		 mem_to_reg  => ,
-		 alu_op      => alu_op ,
-		 alu_src     => ,
+		 reg_dst    => reg_dest,
+		 branch     => branch,
+		 jump			=> jump,
+		 mem_read    => mem_read,
+		 mem_to_reg  => mem_to_reg,
+		 alu_op      => op_code ,
+		 alu_src     => alu_src,
 		 reg_write   => reg_write ,
 		 mem_write   => dmem_write_enable);
 		
