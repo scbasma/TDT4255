@@ -34,7 +34,7 @@ entity RegisterFile is
 	generic (
 		ADDR_WIDTH : integer := 8;
 		DATA_WIDTH : integer := 32;
-		size : natural := 1024);
+		size : natural := 32);
 
 	port(
 			clk : in STD_LOGIC;
@@ -69,10 +69,10 @@ begin
 		end if;
 	end process  Regfile_Proc;
 
-	read_data1 <= (others=>'0') when read_register1_addr="00000"
+	read_data1 <= (others=>'0') when read_register1_addr="00000000"
          else Regfile(to_integer(unsigned(read_register1_addr)));
 			
-	read_data2 <= (others=>'0') when read_register2_addr="00000"
+	read_data2 <= (others=>'0') when read_register2_addr="00000000"
          else Regfile(to_integer(unsigned(read_register2_addr)));
 
 end Behavioral;

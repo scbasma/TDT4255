@@ -34,7 +34,7 @@ entity DataMemory is
 	 generic (
 	 		 ADDR_WIDTH : integer := 8;
 		    DATA_WIDTH : integer := 32;
-		    size : natural := 1024);
+		    size : natural := 32);
 	 
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
@@ -53,13 +53,13 @@ signal address_reg :	STD_LOGIC_VECTOR (ADDR_WIDTH-1 downto 0);
 
 begin
 
-	Datamem_Proc: process(clk, rst)
+	Datamem_Proc: process(clk, data_mem, data_in, write_address, read_address, MemWrite, address_reg)
 	begin	
-		if (rst = '1') then 
-			for i in 0 to size-1 loop
-				Data_mem(i) <= (others => '0');
-			end loop;
-		elsif rising_edge (clk) then
+		--if (rst = '1') then 
+		--	for i in 0 to size-1 loop
+		--		Data_mem(i) <= (others => '0');
+		--	end loop;
+		if rising_edge (clk) then
 			if MemWrite='1' then
 				Data_mem(to_integer(unsigned( write_address((ADDR_WIDTH-1) downto 0) ))) <= data_in;
 			end if;
