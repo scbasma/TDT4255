@@ -9,7 +9,7 @@ entity ALU_Ctrl is
       op_code: in std_logic_vector(1 downto 0);
       instruction_funct: in std_logic_vector(5 downto 0);
       
-      alu_op: out std_logic_vector(5 downto 0)
+      alu_op: out std_logic_vector(3 downto 0)
 
   );
 
