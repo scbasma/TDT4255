@@ -16,6 +16,7 @@ entity MIPSProcessor is
 	generic (
 		ADDR_WIDTH : integer := 8;
 		DATA_WIDTH : integer := 32
+		regfile_size : natural := 32);
 	);
 	port (
 		clk, reset 				: in std_logic;
@@ -66,14 +67,14 @@ begin
 	
 	SignExtend : entity work.SignExtend
 		port map( 
-			data_in => ,
+			data_in => imem_data_in( 15 downto 0),
          data_out => imem_address );
 	
 	RegisterFile : entity work.RegisterFile
 		generic map(
 			ADDR_WIDTH => ADDR_WIDTH,
 			DATA_WIDTH => DATA_WIDTH,
-			size => )
+			size => regfile_size );
 		port map(
 			clk => clk,
 			rst	=> rst,
@@ -96,7 +97,7 @@ begin
 	ALU_Ctrl : entity ALU_Ctrl
 		port map(
 			op_code => ,
-			instruction_funct => ,			
+			instruction_funct => imem_data_in( 5 downto 0) ,			
 			alu_op =>  );
 	
 	program_counter : entity work.program_counter
