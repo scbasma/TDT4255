@@ -45,6 +45,7 @@ architecture DummyArch of MIPSProcessor is
 	-- Control unit signals
 	signal reg_write  : std_logic;
 	signal write_en   : std_logic;
+	signal alu_op     : std_logic_vector(1 downto 0);
 	--
 begin
 
@@ -90,7 +91,7 @@ begin
 		port map (
 			rt  			=> read_data_1,
 			rs				=> data_2,
-			alu_op		=> ,
+			alu_op		=> alu_op ,
 			alu_result	=> alu_result,
 			zero			=> zero );
 			
@@ -98,7 +99,7 @@ begin
 		port map(
 			op_code => ,
 			instruction_funct => imem_data_in( 5 downto 0) ,			
-			alu_op =>  );
+			alu_op => alu_op  );
 	
 	program_counter : entity work.program_counter
 		port map(
@@ -120,9 +121,9 @@ begin
 		 jump			=> ,
 		 mem_read    => ,
 		 mem_to_reg  => ,
-		 alu_op      => ,
+		 alu_op      => alu_op ,
 		 alu_src     => ,
-		 reg_write   => ,
+		 reg_write   => reg_write ,
 		 mem_write   => dmem_write_enable);
 		
 	
