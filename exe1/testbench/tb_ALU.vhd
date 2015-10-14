@@ -36,7 +36,7 @@ begin
 
 
     clk <= not clk after clk_period/2;
-
+	 
     ALU_TEST: process
     begin
       wait until rising_edge(clk);
@@ -55,6 +55,24 @@ begin
       wait until falling_edge(clk);
       check(alu_result = signed(rt) + signed(rs), "Addition failed");
       report "Addition passed" severity note;
+		
+		
+		wait until rising_edge(clk);
+      rt <= to_signed(1, 32);
+      rs <= to_signed(2, 32);
+      alu_op <= "0111"; -- ADD
+      wait until falling_edge(clk);
+      check(alu_result = 1, "slt failed");
+		
+		wait until rising_edge(clk);
+      rt <= to_signed(3, 32);
+      rs <= to_signed(2, 32);
+      alu_op <= "0111"; -- ADD
+      wait until falling_edge(clk);
+      check(alu_result = 0, "slt failed");
+      report "slt passed" severity note;
+		
+		report "Simulation completed" severity failure;
     end process ALU_TEST;
 
 end architecture behavioural; 

@@ -29,6 +29,10 @@ begin
       when "0110" => alu_result <= signed(rt) - signed(rs);
       when "0000" => alu_result <= rt and rs;
       when "0001" => alu_result <= rt or rs;
+	   when "0111" => if rt < rs 
+								then alu_result <= to_signed(1, 32);
+								else alu_result <= to_signed(0, 32);
+							end if;
 		when others => alu_result <= signed(rt) + signed(rs);
     end case;
   end process;
