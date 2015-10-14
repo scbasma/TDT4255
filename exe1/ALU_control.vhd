@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMBERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity ALU_Ctrl is 
 
@@ -29,8 +29,10 @@ begin
             when "100010" => alu_op <= "0110";
             when "100100" => alu_op <= "0000";
             when "100101" => alu_op <= "0001";
-            when "101010" => alu_op <= "0111";      
+            when "101010" => alu_op <= "0111";
+			   when others => alu_op <= "0010"; 
           end case;
+		 when others => alu_op <= "0010";
     end case;
   end process;
 end behavorial;
