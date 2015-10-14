@@ -25,11 +25,11 @@ begin
   process (alu_op, rt, rs)
   begin
     case alu_op is
-      when "0010" => result <= signed(rt) + signed(rs);
-      when "0110" => result <= signed(rt) - signed(rs);
-      when "0111" => result <= if rt < rs then result <= '1' else result<= '0' end if;
-      when "0000" => result <= rt and rs;
-      when "0001" => result <= rt or rs;
+      when "0010" => alu_result <= signed(rt) + signed(rs);
+      when "0110" => alu_result <= signed(rt) - signed(rs);
+      when "0111" => alu_result <= if rt < rs then result <= '1' else result<= '0' end if;
+      when "0000" => alu_result <= rt and rs;
+      when "0001" => alu_result <= rt or rs;
     end case;
   end process;
 end behavorial;
