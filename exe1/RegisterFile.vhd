@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity RegisterFile is
 
 	generic (
-		ADDR_WIDTH : integer := 8;
+		ADDR_WIDTH : integer := 5;
 		DATA_WIDTH : integer := 32;
 		size : natural := 32);
 
@@ -56,9 +56,9 @@ architecture Behavioral of RegisterFile is
 
 begin
 
-	Regfile_Proc: process(clk, rst)
+	Regfile_Proc: process(clk, rst, Regfile, read_register1_addr, read_register2_addr)
 	begin
-    	if  rst='1' then
+    	if  (rst='1') then
 			for i in 0 to size-1 loop
 				Regfile(i) <= (others => '0');
 			end loop;
@@ -67,13 +67,12 @@ begin
 				Regfile(to_integer(unsigned(write_register_addr)))<=write_data;
 			end if;
 		end if;
+		
+		read_data1 <= Regfile(to_integer(unsigned(read_register1_addr)));		
+		read_data2 <= Regfile(to_integer(unsigned(read_register2_addr)));
 	end process  Regfile_Proc;
 
-	read_data1 <= (others=>'0') when read_register1_addr="00000000"
-         else Regfile(to_integer(unsigned(read_register1_addr)));
-			
-	read_data2 <= (others=>'0') when read_register2_addr="00000000"
-         else Regfile(to_integer(unsigned(read_register2_addr)));
+
 
 end Behavioral;
 

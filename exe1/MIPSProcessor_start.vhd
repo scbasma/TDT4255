@@ -61,6 +61,11 @@ architecture DummyArch of MIPSProcessor is
 	--
 begin
 
+	write_reg_add <= imem_data_in( 20 downto 16) when reg_dst='0' else imem_data_in( 15 downto 11); -- Mux before regfile
+	data_2 <= read_data_2 when alu_src='0' else extend_out; -- Mux before ALU
+	write_data <= alu_result when mem_to_reg='0' else dmem_data_out; -- Mux after Data memory
+	
+
 	DummyProc: process(clk, reset)
 	begin
 		if reset = '1' then
@@ -127,7 +132,7 @@ begin
 		 rst => rst,	  
 		 instruction => imem_data_in(31 downto 26),
 		 write_en   => write_en,
-		 reg_dst    => reg_dest,
+		 reg_dst    => reg_dst,
 		 branch     => branch,
 		 jump			=> jump,
 		 mem_read    => mem_read,
