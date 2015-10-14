@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity RegisterFile is
 
 	generic (
-		ADDR_WIDTH : integer := 5;
+		ADDR_REG_WIDTH : integer := 5;
 		DATA_WIDTH : integer := 32;
 		size : natural := 32);
 
@@ -40,9 +40,9 @@ entity RegisterFile is
 			clk : in STD_LOGIC;
 			rst	: in STD_LOGIC;
 			RegWrite : in STD_LOGIC;				
-			read_register1_addr : in STD_LOGIC_VECTOR (ADDR_WIDTH-1 downto 0); 
-			read_register2_addr : in STD_LOGIC_VECTOR (ADDR_WIDTH-1 downto 0); 
-			write_register_addr : in STD_LOGIC_VECTOR (ADDR_WIDTH-1 downto 0);
+			read_register1_addr : in STD_LOGIC_VECTOR (ADDR_REG_WIDTH-1 downto 0); 
+			read_register2_addr : in STD_LOGIC_VECTOR (ADDR_REG_WIDTH-1 downto 0); 
+			write_register_addr : in STD_LOGIC_VECTOR (ADDR_REG_WIDTH-1 downto 0);
 			write_data	: in STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0); 
 			read_data1	: out STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
 			read_data2	: out STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0));
