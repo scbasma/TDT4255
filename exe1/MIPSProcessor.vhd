@@ -64,9 +64,9 @@ architecture Behavioral of MIPSProcessor is
 begin
 	
 	-- Mux before Program counter
-	address_in <=	next_address 			when	(branch='0' and jump='0') else
-			std_logic_vector(signed(next_address) + (signed(extend_out) sll 2))	when  (branch='1' and zero =true and jump='0') else
-			std_logic_vector(signed(imem_data_in(25 downto 0)) sll 2); 
+	address_in <=	next_address 			when	((branch='0' or zero =false) and jump='0') else
+			std_logic_vector(signed(next_address) + signed(extend_out))	when  (branch='1' and zero =true and jump='0') else
+			std_logic_vector(signed(next_address(31 downto 26)) & (signed(imem_data_in(25 downto 0)))); 
 						
 	-- Mux before regfile
 	write_reg_add <=	imem_data_in( 20 downto 16) when reg_dst='0' else

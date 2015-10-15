@@ -48,7 +48,7 @@ begin -- architecture behavioural
         begin
             case current_s is 
                 when IDLE =>
-							write_en    <= '1' and  processor_enable ;
+							write_en    <= '0';-- and  processor_enable ;
 							reg_dst     <= '0';
 							branch      <= '0';
 							jump 			<= '0';
@@ -86,7 +86,7 @@ begin -- architecture behavioural
 							end case;						
          
                 when S_RFORMAT =>
-					   write_en    <= '0';
+					   write_en    <= '1';
 						reg_dst     <= '1';
 						branch      <= '0';
 						jump 			<= '0';
@@ -134,7 +134,7 @@ begin -- architecture behavioural
 						 mem_write   <= '0';
 						 next_s <= STALL;
 					 when S_BEQ =>
-					    write_en    <= '0';
+					    write_en    <= '1';
 						 reg_dst     <= '0';
 						 branch      <= '1';
 						 jump 		 <= '0';
@@ -144,7 +144,7 @@ begin -- architecture behavioural
 						 alu_src     <= '0';
 						 reg_write   <= '0';
 						 mem_write   <= '0';
-						 next_s <= FETCH;	
+						 next_s <= STALL2;	
 					when S_LUI =>
 					    write_en    <= '0';
 						 reg_dst     <= '0';
@@ -159,9 +159,10 @@ begin -- architecture behavioural
 						 mem_write   <= '0';
 						 next_s <= STALL;							 
                 when STALL =>
+					     write_en    <= '1';
                     next_s <= STALL2;
 					 when STALL2 =>
-					 	  write_en    <= '1';
+					 	  write_en    <= '0';
                     next_s <= FETCH;
 					 when others => null;
             end case;
