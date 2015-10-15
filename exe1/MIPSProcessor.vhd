@@ -83,14 +83,14 @@ begin
 	dmem_data_out<= "000" & imem_data_in( 20 downto 16);
 	
 	
-	process (clk, reset) is
-        begin 
-        if reset = '1' then 
-            imem_address <= x"00";
-        elsif rising_edge(clk) then
-				imem_address <= address_out(7 downto 0);
-         end if;
-   end process;
+	--process (clk, reset) is
+   --     begin 
+   --     if reset = '1' then 
+   --         imem_address <= x"00";
+   --     elsif rising_edge(clk) then
+	--			imem_address <= address_out(7 downto 0);
+   --      end if;
+   --end process;
 	
 	
 	SignExtend : entity work.SignExtend
@@ -125,7 +125,7 @@ begin
 	ALU_PC : entity work.ALU
 		port map (
 			rt  			=> address_out,
-			rs				=> x"00000004",
+			rs				=> x"00000001",
 			alu_op		=> "0010" ,
 			alu_result	=> next_address,
 			zero			=> false);
@@ -159,8 +159,8 @@ begin
 		 alu_op      => op_code ,
 		 alu_src     => alu_src,
 		 reg_write   => reg_write ,
-		 mem_write   => dmem_write_enable);
-		
+		 mem_write   => dmem_write_enable,
+		 processor_enable => processor_enable	);	
 	
 end Behavioral;
 
