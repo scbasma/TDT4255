@@ -50,15 +50,14 @@ architecture Behavioral of MIPSProcessor is
 	-- ALU Control signal
 	signal alu_op     : std_logic_vector(3 downto 0); 
 	-- Control unit signals
-	signal reg_write  : std_logic;
-	signal write_en   : std_logic;
-	signal op_code    : std_logic_vector(1 downto 0);
-	signal reg_dst    : std_logic;
-	signal branch     : std_logic;
-	signal jump			: std_logic;
-	signal mem_read   : std_logic;
-	signal mem_to_reg : std_logic;
-	signal alu_src    : std_logic;
+	signal reg_write  : std_logic :='0';
+	signal write_en   : std_logic :='0';
+	signal op_code    : std_logic_vector(1 downto 0):="00";
+	signal reg_dst    : std_logic :='0';
+	signal branch     : std_logic :='0';
+	signal jump			: std_logic :='0';
+	signal mem_to_reg : std_logic :='0';
+	signal alu_src    : std_logic :='0';
 	-- SignExtend
 	signal extend_out : std_logic_vector(DATA_WIDTH-1 downto 0);
 	
@@ -156,7 +155,6 @@ begin
 		 reg_dst    => reg_dst,
 		 branch     => branch,
 		 jump			=> jump,
-		 mem_read    => mem_read,
 		 mem_to_reg  => mem_to_reg,
 		 alu_op      => op_code ,
 		 alu_src     => alu_src,
