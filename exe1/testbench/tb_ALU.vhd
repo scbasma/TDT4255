@@ -45,8 +45,16 @@ begin
       alu_op <= "0110"; -- SUB
       wait until falling_edge(clk);
       check(alu_result = std_logic_vector(signed(rt) - signed(rs)), "Subtraction failed");
-      report "Subtraction passed" severity note;
+      report "regular Subtraction passed" severity note;
 		
+		
+      wait until rising_edge(clk);
+      rt <= std_logic_vector(to_signed(2147483647, 32));
+      rs <= std_logic_vector(to_signed(-2147483647, 32));
+      alu_op <= "0110"; -- SUB
+      wait until falling_edge(clk);
+      check(alu_result = std_logic_vector(signed(rt) - signed(rs)), "Subtraction failed");
+      report "BIG Subtraction passed" severity note;
 		
 		wait until rising_edge(clk);
       rt <= std_logic_vector(to_signed(2, 32));
@@ -56,18 +64,53 @@ begin
       check(alu_result = std_logic_vector(signed(rt) + signed(rs)), "Addition failed");
       report "Addition passed" severity note;
 		
+
+      wait until rising_edge(clk);
+      rt <= std_logic_vector(to_signed(2147483647, 32));
+      rs <= std_logic_vector(to_signed(-2147483647, 32));
+      alu_op <= "0010"; -- 
+      wait until falling_edge(clk);
+      check(alu_result = std_logic_vector(signed(rt) + signed(rs)), "big addition failed");
+      report "Big addition passed" severity note;
+		
+    
+      wait until rising_edge(clk);
+      rt <= std_logic_vector(to_signed(2, 32));
+      rs <= std_logic_vector(to_signed(2, 32));
+      alu_op <= "0000"; -- AND
+      wait until falling_edge(clk);
+      check(alu_result = std_logic_vector(signed(rt) and  signed(rs)), "AND failed");
+      report "AND passed" severity note;
+		
+		
+      wait until rising_edge(clk);
+      rt <= std_logic_vector(to_signed(0, 32));
+      rs <= std_logic_vector(to_signed(1, 32));
+      alu_op <= "0000"; -- AND
+      wait until falling_edge(clk);
+      check(alu_result = std_logic_vector(signed(rt) and  signed(rs)), "AND failed");
+      report "AND passed" severity note;
+		
+
+      wait until rising_edge(clk);
+      rt <= std_logic_vector(to_signed(1, 32));
+      rs <= std_logic_vector(to_signed(1, 32));
+      alu_op <= "0001"; -- OR
+      wait until falling_edge(clk);
+      check(alu_result = std_logic_vector(signed(rt) or  signed(rs)), "OR failed");
+      report "OR passed" severity note;
 		
 		wait until rising_edge(clk);
       rt <= std_logic_vector(to_signed(1, 32));
       rs <= std_logic_vector(to_signed(2, 32));
-      alu_op <= "0111"; -- ADD
+      alu_op <= "0111"; -- SLT
       wait until falling_edge(clk);
       check(signed(alu_result) = 1, "slt failed");
 		
 		wait until rising_edge(clk);
       rt <= std_logic_vector(to_signed(3, 32));
       rs <= std_logic_vector(to_signed(2, 32));
-      alu_op <= "0111"; -- ADD
+      alu_op <= "0111"; -- SLT
       wait until falling_edge(clk);
       check(signed(alu_result) = 0, "slt failed");
       report "slt passed" severity note;
