@@ -152,7 +152,7 @@ begin -- architecture behavioural
 						 jump 		 <= '0';
 						 mem_read    <= '0';
 						 mem_to_reg  <= '0';
-						 alu_op      <= "00";
+						 alu_op      <= "11";
 						 alu_src     <= '1';
 
 						 reg_write   <= '1';
@@ -161,7 +161,17 @@ begin -- architecture behavioural
                 when STALL =>
 					     write_en    <= '1';
                     next_s <= STALL2;
-					 when STALL2 =>
+					 when STALL2 =>					
+							reg_dst     <= '0';
+							branch      <= '0';
+							jump 			<= '0';
+							mem_read    <= '0';
+							mem_to_reg  <= '0';
+							alu_op      <= "00";
+							alu_src     <= '0';
+							reg_write   <= '0';
+							mem_write   <= '0';
+							
 					 	  write_en    <= '0';
                     next_s <= FETCH;
 					 when others => null;

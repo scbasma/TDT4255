@@ -29,6 +29,7 @@ begin
       when "0110" => alu_result <= std_logic_vector(signed(rt) - signed(rs));
       when "0000" => alu_result <= rt and rs;
       when "0001" => alu_result <= rt or rs;
+		when "1000" => alu_result <= std_logic_vector(signed(rs) sll 16);
 	   when "0111" => if rt < rs 
 								then alu_result <= std_logic_vector(to_signed(1, 32));
 								else alu_result <= std_logic_vector(to_signed(0, 32));

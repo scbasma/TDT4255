@@ -36,6 +36,8 @@ architecture Behavioral of MIPSProcessor is
 	signal address_in		: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal address_out	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal next_address  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	--ALU PC  signal
+	signal empty : boolean;
 	-- registers signals
 	signal read_data_1	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal read_data_2	: std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -80,7 +82,7 @@ begin
 						
 	imem_address <= address_out(ADDR_WIDTH-1 downto 0);
 	dmem_address <= alu_result(ADDR_WIDTH-1 downto 0);
-	dmem_data_out<= "000" & imem_data_in( 20 downto 16);
+	dmem_data_out<= read_data_2;
 	
 	
 	--process (clk, reset) is
@@ -128,7 +130,7 @@ begin
 			rs				=> x"00000001",
 			alu_op		=> "0010" ,
 			alu_result	=> next_address,
-			zero			=> false);
+			zero			=> empty);
 			
 	ALU_Ctrl : entity work.ALU_Ctrl
 		port map(

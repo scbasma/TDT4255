@@ -23,7 +23,8 @@ begin
     case op_code is 
       when "00" => alu_op <= "0010";
       when "01" => alu_op <= "0110";
-      when "10" => 
+		when "11" => alu_op <= "1000";
+       when "10" => 
           case instruction_funct is
             when "100000" => alu_op <= "0010";
             when "100010" => alu_op <= "0110";
