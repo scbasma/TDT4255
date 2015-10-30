@@ -42,6 +42,12 @@ entity id_ex_reg is
 		memwrite_out : out STD_LOGIC;
 		memtoreg_out : out STD_LOGIC);
 		
+    --for forwarding unit
+
+    reg_rt_in : in std_logic_vector(4 downto 0);
+    reg_rt_out : out std_logic_vector(4 downto 0);
+    reg_rs_in : in std_logic_vector(4 downto 0);
+    reg_rs_out : out std_logic_vector(4 downto 0);
 end entity id_ex_reg; 
 
 architecture Behavioral of id_ex_reg is
