@@ -11,7 +11,6 @@ entity control_unit is
     -- Communication
     instruction : in  std_logic_vector(5 downto 0);
 	 processor_enable : in std_logic;
-	 write_en    : out std_logic ;
     reg_dst     : out std_logic;
     branch      : out std_logic;
 	 jump			 : out std_logic;

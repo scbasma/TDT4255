@@ -16,7 +16,7 @@ architecture behavioural of tb_control_unit is
   signal rst : std_logic := '0';
   signal instruction      : std_logic_vector(5 downto 0) := (others => '0');
   signal processor_en : std_logic;
-  signal write_en				: std_logic;
+  signal mem_read				: std_logic;
   signal reg_dst            : std_logic;
   signal branch            : std_logic;
   signal jump	            : std_logic;
@@ -39,7 +39,7 @@ begin  -- architecture behavioural
       clk         => clk,
       rst         => rst,
       instruction => instruction,
-		write_en    => write_en,
+		mem_read    => mem_read,
       reg_dst     => reg_dst,
       branch      => branch,
 		jump        => jump,
@@ -55,9 +55,9 @@ begin  -- architecture behavioural
   -- waveform generation
   WaveGen_Proc : process
 
-	procedure check_idle_output is
-    begin  -- procedure check_idle_output
-      check(write_en = '0', "write enable incorrect idle output");
+	procedure check_init_output is
+    begin  -- procedure check_init_output
+      check(mem_read = '0', "mem_read incorrect idle output");
       check(reg_dst = '0', "reg dst incorrect idle output");
       check(branch = '0', "branch incorrect idle output");
 		check(jump = '0', "jump incorrect idle output");
@@ -66,33 +66,19 @@ begin  -- architecture behavioural
       check(alu_src = '0', "alu src incorrect idle output");
       check(reg_write = '0', "reg write incorrect idle output");
       check(mem_write = '0', "mem write incorrect idle output");
-    end procedure check_idle_output;
+    end procedure check_init_output;
 	 
-    procedure check_fetch_output is
-    begin  -- procedure check_idle_output
-      check(write_en = '0', "write enable incorrect fetch output");
-      check(reg_dst = '0', "reg dst incorrect fetch output");
-      check(branch = '0', "branch incorrect fetch output");
-		check(jump = '0', "jump incorrect fetch output");
-      check(mem_to_reg = '0', "mem to reg incorrect fetch output");
-      check(alu_op = "00", "alu op incorrect fetch output");
-      check(alu_src = '0', "alu src incorrect fetch output");
-      check(reg_write = '0', "reg write incorrect fetch output");
-      check(mem_write = '0', "mem write incorrect fetch output");
-    end procedure check_fetch_output;
-
-    procedure check_stable_idle is
-    begin  -- procedure check_stable_idle
-      --check(instruction = "100000", "[TEST BUG]: Empty should be 1 for idle to be stable");
-      idle_reset_check : for i in 0 to 20 loop
-        check_idle_output;
+    procedure check_stable_init is
+    begin  -- procedure check_stable_init
+      init_reset_check : for i in 0 to 20 loop
+        check_init_output;
         wait for clk_period;
-      end loop idle_reset_check;
-    end procedure check_stable_idle;
+      end loop init_reset_check;
+    end procedure check_stable_init;
 
     procedure check_rformat_output is
     begin  -- procedure check_fetch_output
-      check(write_en = '1', "write enable incorrect r-format output");
+      check(mem_read = '0', "mem_read incorrect r-format output");
       check(reg_dst = '1', "reg dst incorrect r-format output");
       check(branch = '0', "branch incorrect r-format output");
 		check(jump = '0', "jump incorrect r-format output");      
@@ -105,7 +91,7 @@ begin  -- architecture behavioural
 
     procedure check_lw_output is
     begin  -- procedure check_decode_output
-      check(write_en = '0', "write enable incorrect lw output");
+      check(mem_read = '1', "mem_read incorrect lw output");
       check(reg_dst = '0', "reg dst incorrect lw output");
       check(branch = '0', "branch incorrect lw output");
 		check(jump = '0', "jump incorrect lw output");
@@ -115,23 +101,10 @@ begin  -- architecture behavioural
       check(reg_write = '1', "reg write incorrect lw output");
       check(mem_write = '0', "mem write incorrect lw output");
     end procedure check_lw_output;
-	
-	procedure check_stall_lw_output is
-    begin  -- procedure check_decode_output
-      check(write_en = '1', "write enable incorrect stall lw output");
-      check(reg_dst = '0', "reg dst incorrect stall lw output");
-      check(branch = '0', "branch incorrect stall lw output");
-		check(jump = '0', "jump incorrect stall lw output");
-      check(mem_to_reg = '1', "mem to reg incorrect stall lw output");
-      check(alu_op = "00", "alu op incorrect stall lw output");
-      check(alu_src = '1', "alu src incorrect stall lw output");
-      check(reg_write = '1', "reg write incorrect stall lw output");
-      check(mem_write = '0', "mem write incorrect stall lw output");
-    end procedure check_stall_lw_output;
     
 	 procedure check_sw_output is
     begin  
-      check(write_en = '0', "write enable incorrect sw output");
+      check(mem_read = '0', "mem_read incorrect sw output");
       check(reg_dst = '0', "reg dst incorrect sw output");
       check(branch = '0', "branch incorrect sw output");		
 		check(jump = '0', "jump incorrect sw output");
@@ -141,23 +114,10 @@ begin  -- architecture behavioural
       check(reg_write = '0', "reg write incorrect sw output");
       check(mem_write = '1', "mem write incorrect sw output");
     end procedure check_sw_output;
-
-	procedure check_stall_sw_output is
-    begin  
-      check(write_en = '1', "write enable incorrect stall sw output");
-      check(reg_dst = '0', "reg dst incorrect stall sw output");
-      check(branch = '0', "branch incorrect stall sw output");		
-		check(jump = '0', "jump incorrect stall sw output");
-      check(mem_to_reg = '0', "mem to reg incorrect stall sw output");
-      check(alu_op = "00", "alu op incorrect stall sw output");
-      check(alu_src = '1', "alu src incorrect stall sw output");
-      check(reg_write = '0', "reg write incorrect stall sw output");
-      check(mem_write = '1', "mem write incorrect stall sw output");
-    end procedure check_stall_sw_output;
-
+	 
     procedure check_beq_output is
     begin  -- procedure check_pop_b_output
-      check(write_en = '1', "write enable incorrect beq output");
+      check(mem_read = '0', "mem_read incorrect beq output");
       check(reg_dst = '0', "reg dst incorrect beq output");
       check(branch = '1', "branch incorrect beq output");
 		check(jump = '0', "jump incorrect beq output");
@@ -167,23 +127,10 @@ begin  -- architecture behavioural
       check(reg_write = '0', "reg write incorrect beq output");
       check(mem_write = '0', "mem write incorrect beq output");
     end procedure check_beq_output;
-	
-	procedure check_stall2_output is
-    begin  -- procedure check_pop_a_output
-      check(write_en = '0', "write enable incorrect stall 2 output");
-      check(reg_dst = '0', "reg dst incorrect stall 2 output");
-      check(branch = '0', "branch incorrect stall 2 output");
-		check(jump = '0', "jump incorrect stall 2 output");
-      check(mem_to_reg = '0', "mem to reg incorrect stall 2 output");
-      check(alu_op = "00", "alu op incorrect stall 2 output");
-      check(alu_src = '0', "alu src incorrect stall 2 output");
-      check(reg_write = '0', "reg write incorrect stall 2 output");
-      check(mem_write = '0', "mem write incorrect stall 2 output");
-    end procedure check_stall2_output;
 	 
     procedure check_jump_output is
     begin  -- procedure check_pop_a_output
-      check(write_en = '0', "write enable incorrect jump output");
+      check(mem_read = '0', "mem_read incorrect jump output");
       check(reg_dst = '0', "reg dst incorrect jump output");
       check(branch = '0', "branch incorrect jump output");
 		check(jump = '1', "jump incorrect jump output");
@@ -194,22 +141,9 @@ begin  -- architecture behavioural
       check(mem_write = '0', "mem write incorrect jump output");
     end procedure check_jump_output;
 	 
-	  procedure check_stall_jump_output is
-    begin  -- procedure check_pop_a_output
-      check(write_en = '1', "write enable incorrect stall jump output");
-      check(reg_dst = '0', "reg dst incorrect stall jump output");
-      check(branch = '0', "branch incorrect stall jump output");
-		check(jump = '1', "jump incorrect stall jump output");
-      check(mem_to_reg = '0', "mem to reg incorrect stall jump output");
-      check(alu_op = "00", "alu op incorrect stall jump output");
-      check(alu_src = '0', "alu src incorrect stall jump output");
-      check(reg_write = '0', "reg write incorrect stall jump output");
-      check(mem_write = '0', "mem write incorrect stall jump output");
-    end procedure check_stall_jump_output;
-	 
 	  procedure check_lui_output is
     begin  -- procedure check_pop_a_output
-      check(write_en = '0', "write enable incorrect lui output");
+      check(mem_read = '0', "mem_read incorrect lui output");
       check(reg_dst = '0', "reg dst incorrect lui output");
       check(branch = '0', "branch incorrect lui output");
 		check(jump = '0', "jump incorrect lui output");
@@ -220,20 +154,6 @@ begin  -- architecture behavioural
       check(mem_write = '0', "mem write incorrect lui output");
     end procedure check_lui_output;
 	 
-	  procedure check_stall_lui_output is
-    begin  -- procedure check_pop_a_output
-      check(write_en = '1', "write enable incorrect stall lui output");
-      check(reg_dst = '0', "reg dst incorrect stall lui output");
-      check(branch = '0', "branch incorrect stall lui output");
-		check(jump = '0', "jump incorrect stall lui output");
-      check(mem_to_reg = '0', "mem to reg incorrect stall lui output");
-      check(alu_op = "11", "alu op incorrect stall lui output");
-      check(alu_src = '1', "alu src incorrect stall lui output");
-      check(reg_write = '1', "reg write incorrect stall lui output");
-      check(mem_write = '0', "mem write incorrect stall lui output");
-    end procedure check_stall_lui_output;
-
-
   begin
     -- insert signal assignments here
     wait for clk_period/4;
@@ -244,11 +164,11 @@ begin  -- architecture behavioural
 -- TEST stable behaviour after reset
 	 processor_en <='0';	
 	 instruction <= "000000";
-    check_stable_idle;
+    check_stable_init;
     report "Test 1 passed" severity note;
 	 processor_en <='1';	
     wait for clk_period;
-    check_fetch_output;
+    check_rformat_output;
     report "Test 2 passed" severity note;
 	 
 	 
@@ -256,97 +176,36 @@ begin  -- architecture behavioural
 	 instruction <= "100011";
     check_rformat_output;
     report "Test 3 passed" severity note;
-	 
 	 wait for clk_period;
-    check_stall2_output;
+	 instruction <= "100011";
+    check_lw_output;
     report "Test 4 passed" severity note;
-	 
+	 instruction <= "101011";
 	 wait for clk_period;
-    check_fetch_output;
+    check_sw_output;
     report "Test 5 passed" severity note;
 	 
-	 wait for clk_period;
-	 check_lw_output;
-    report "Test 6 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_stall_lw_output;
-    report "Test 7 passed" severity note;
-	 
 	 instruction <= "101011";
-	 
 	 wait for clk_period;
-    check_stall2_output;
-    report "Test 8 passed" severity note;
-
-	 wait for clk_period;
-    check_fetch_output;
-    report "Test 9 passed" severity note;
-	
-	 wait for clk_period;
-	 
-	 check_sw_output;
-    report "Test 10 passed" severity note;
-	 wait for clk_period;
-	 
-	 check_stall_sw_output;
-    report "Test 11 passed" severity note;
+    check_sw_output;
+    report "Test 6 passed" severity note;
 	 
 	 instruction <= "000100";
 	 wait for clk_period;
-    check_stall2_output;
-    report "Test 12 passed" severity note;
-	 
-	 wait for clk_period;
-    check_fetch_output;
-    report "Test 13 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_beq_output;
-    report "Test 14 passed" severity note;
+    check_beq_output;
+    report "Test 7 passed" severity note;
 	 
 	 instruction <= "000010";
 	 wait for clk_period;
-    check_stall2_output;
-    report "Test 15 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_fetch_output;
-    report "Test 16 passed" severity note;
-	 
-	 wait for  clk_period;
-	 check_jump_output;
-    report "Test 17 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_stall_jump_output;
-    report "Test 18 passed" severity note;
-	 
-	 instruction <= "001111";
-	 wait for clk_period;
-    check_stall2_output;
-    report "Test 19 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_fetch_output;
-    report "Test 20 passed" severity note;
+    check_jump_output;
+    report "Test 8 passed" severity note;
 	
-	 wait for  clk_period;
-	 check_lui_output;
-    report "Test 21 passed" severity note;
-	 
-	 wait for clk_period;
-	 check_stall_lui_output;
-    report "Test 22 passed" severity note;
-	 
+	  
 	 instruction <= "001111";
 	 wait for clk_period;
-    check_stall2_output;
-    report "Test 23 passed" severity note;
+    check_lui_output;
+    report "Test 9 passed" severity note;
 	 
-	 wait for clk_period;
-	 check_fetch_output;
-    report "Test 24 passed" severity note;	
 	 assert false report "TEST SUCCESS" severity failure;
     wait until clk = '1';
 

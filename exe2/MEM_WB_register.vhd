@@ -15,9 +15,9 @@ entity mem_to_wb is
         alu_result_out : out std_logic(31 downto 0);
 
         write_register_in : in std_logic_vector(31 downto 0);
-        write_register_out : out std_logic_vector(31 downto 0); 
+        write_register_out : out std_logic_vector(31 downto 0) 
     
-    )
+    );
 end entity mem_to_wb;
 
 
@@ -29,7 +29,7 @@ begin
 
     process(clk) is 
         begin 
-        if rising_edge(clk)
+        if rising_edge(clk) then
             if rst = '1' then 
                 read_data_out <= (others => '0');
                 alu_result_out <= (others => '0');
