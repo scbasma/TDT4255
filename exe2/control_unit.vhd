@@ -19,16 +19,13 @@ entity control_unit is
     alu_op      : out std_logic_vector(1 downto 0);
 	 alu_src     : out std_logic;
     reg_write   : out std_logic;
-    mem_write   : out std_logic);
-
+    mem_write   : out std_logic;
+	 mem_read    : out std_logic);
 
 end entity control_unit;
 
 architecture behavioural of control_unit is
 
-
-	type state_type is (IDLE, FETCH, S_RFORMAT, S_LW,S_SW,S_BEQ,S_JUMP,S_LUI, STALL_LW,STALL_SW,STALL_J,STALL_LUI,STALL2);
-	signal current_s, next_s: state_type;
 	signal instruction_current : std_logic_vector(5 downto 0);
 
 begin -- architecture behavioural
@@ -37,52 +34,18 @@ begin -- architecture behavioural
     process (clk, rst,processor_enable) is
         begin 
         if rst = '1' then 
-            current_s <= IDLE;
+				reg_dst     <= '0';
+				branch      <= '0';
+				jump 			<= '0';
+				mem_to_reg  <= '0';
+				alu_op      <= "00";
+				alu_src     <= '0';
+				reg_write   <= '0';
+				mem_write   <= '0';	
+				mem_read    <= '0';
         elsif rising_edge(clk) and processor_enable='1' then
-            current_s <= next_s;
-         end if;
-    end process;
-    
-    process(instruction, current_s,processor_enable) is
-        begin
-            case current_s is 
-                when IDLE =>
-							write_en    <= '0';-- and  processor_enable ;
-							reg_dst     <= '0';
-							branch      <= '0';
-							jump 			<= '0';
-							mem_to_reg  <= '0';
-							alu_op      <= "00";
-							alu_src     <= '0';
-							reg_write   <= '0';
-							mem_write   <= '0';							
-							if processor_enable = '1' then 
-								next_s <= FETCH ;
-							else
-								next_s <= IDLE;
-							end if;
-                when FETCH =>
-							write_en    <= '0';
-							reg_dst     <= '0';
-							branch      <= '0';
-							jump 			<= '0';
-							mem_to_reg  <= '0';
-							alu_op      <= "00";
-							alu_src     <= '0';
-							reg_write   <= '0';
-							mem_write   <= '0';
-							case instruction is
-								when "000000" =>	next_s <= S_RFORMAT;
-								when "100011" =>	next_s <= S_LW;
-								when "101011" =>	next_s <= S_SW;
-								when "000010" =>  next_s <= S_JUMP;
-								when "000100" =>  next_s <= S_BEQ;
-								when "001111" =>  next_s <= S_LUI;
-								when others   =>  next_s <= FETCH;							
-							end case;						
-         
-                when S_RFORMAT =>
-					   write_en    <= '1';
+            case instruction is
+					when "000000" =>	-- R FORMAT
 						reg_dst     <= '1';
 						branch      <= '0';
 						jump 			<= '0';
@@ -90,124 +53,71 @@ begin -- architecture behavioural
 						alu_op      <= "10";
 						alu_src     <= '0';
 						reg_write   <= '1';
-						mem_write   <= '0';
-						next_s <= STALL2;	
-					 when S_LW =>
-					    write_en    <= '0';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '1';
-						 alu_op      <= "00";
-						 alu_src     <= '1';
-						 reg_write   <= '1';
-						 mem_write   <= '0';
-						 next_s <= STALL_LW;
-					when STALL_LW =>
-					    write_en    <= '1';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '1';
-						 alu_op      <= "00";
-						 alu_src     <= '1';
-						 reg_write   <= '1';
-						 mem_write   <= '0';
-						 next_s <= STALL2;
-					 when S_SW =>
-						 write_en    <= '0';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "00";
-						 alu_src     <= '1';
-						 reg_write   <= '0';
-						 mem_write   <= '1';
-						 next_s <= STALL_SW;
-					when STALL_SW =>
-						 write_en    <= '1';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "00";
-						 alu_src     <= '1';
-						 reg_write   <= '0';
-						 mem_write   <= '1';
-						 next_s <= STALL2;
-					 when S_JUMP =>
-					    write_en    <= '0';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '1';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "00";
-						 alu_src     <= '0';
-						 reg_write   <= '0';
-						 mem_write   <= '0';
-						 next_s <= STALL_J;
-					when STALL_J =>
-					    write_en    <= '1';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '1';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "00";
-						 alu_src     <= '0';
-						 reg_write   <= '0';
-						 mem_write   <= '0';
-						 next_s <= STALL2;
-					 when S_BEQ =>
-					    write_en    <= '1';
-						 reg_dst     <= '0';
-						 branch      <= '1';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "01";
-						 alu_src     <= '0';
-						 reg_write   <= '0';
-						 mem_write   <= '0';
-						 next_s <= STALL2;	
-					when S_LUI =>
-					    write_en    <= '0';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "11";
-						 alu_src     <= '1';
-
-						 reg_write   <= '1';
-						 mem_write   <= '0';
-						 next_s <= STALL_LUI;
-					when STALL_LUI =>
-					    write_en    <= '1';
-						 reg_dst     <= '0';
-						 branch      <= '0';
-						 jump 		 <= '0';
-						 mem_to_reg  <= '0';
-						 alu_op      <= "11";
-						 alu_src     <= '1';
-
-						 reg_write   <= '1';
-						 mem_write   <= '0';
-						 next_s <= STALL2;						 
-					 when STALL2 =>					
-							reg_dst     <= '0';
-							branch      <= '0';
-							jump 			<= '0';
-							mem_to_reg  <= '0';
-							alu_op      <= "00";
-							alu_src     <= '0';
-							reg_write   <= '0';
-							mem_write   <= '0';
-							
-					 	  write_en    <= '0';
-                    next_s <= FETCH;
-					 when others => null;
-            end case;
-        end process;                    
-         
+						mem_write   <= '0';	
+						mem_read    <= '0';
+					when "100011" =>	-- LW
+						reg_dst     <= '0';
+						branch      <= '0';
+						jump 			<= '0';
+						mem_to_reg  <= '1';
+						alu_op      <= "00";
+						alu_src     <= '1';
+						reg_write   <= '1';
+						mem_write   <= '0';	
+						mem_read    <= '1';
+					when "101011" =>	-- SW
+						reg_dst     <= '0';
+						branch      <= '0';
+						jump 			<= '0';
+						mem_to_reg  <= '0';
+						alu_op      <= "00";
+						alu_src     <= '1';
+						reg_write   <= '0';
+						mem_write   <= '1';	
+						mem_read    <= '0';
+					when "000010" =>  -- JUMP
+						reg_dst     <= '0';
+						branch      <= '0';
+						jump 			<= '1';
+						mem_to_reg  <= '0';
+						alu_op      <= "00";
+						alu_src     <= '0';
+						reg_write   <= '0';
+						mem_write   <= '0';	
+						mem_read    <= '0';
+					when "000100" =>  -- BEQ
+						reg_dst     <= '0';
+						branch      <= '1';
+						jump 			<= '0';
+						mem_to_reg  <= '0';
+						alu_op      <= "01";
+						alu_src     <= '0';
+						reg_write   <= '0';
+						mem_write   <= '0';	
+						mem_read    <= '0';
+					when "001111" =>  -- LUI
+						reg_dst     <= '0';
+						branch      <= '0';
+						jump 			<= '0';
+						mem_to_reg  <= '0';
+						alu_op      <= "11";
+						alu_src     <= '1';
+						reg_write   <= '1';
+						mem_write   <= '0';	
+						mem_read    <= '0';
+					when others   => 		
+						reg_dst     <= '0';
+						branch      <= '0';
+						jump 			<= '0';
+						mem_to_reg  <= '0';
+						alu_op      <= "00";
+						alu_src     <= '0';
+						reg_write   <= '0';
+						mem_write   <= '0';	
+						mem_read    <= '0';
+				end case;	
+         end if;
+    end process;
+ 
 
 end architecture behavioural;
