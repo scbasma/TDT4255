@@ -23,7 +23,7 @@ end entity mem_to_wb;
 
 
 
-architecture behavioural of ex_to_mem is 
+architecture behavioural of mem_to_wb is 
 
 begin 
 
