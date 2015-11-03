@@ -6,7 +6,7 @@ entity id_ex_reg is
   	Port (
 		-- inputs
         clk			   : in STD_LOGIC;
-		rst			   : in STD_LOGIC;
+		flush		   : in STD_LOGIC;
 		pc_address_in  : in std_logic_vector(31 downto 0);
 		read_data_1_in : in std_logic_vector(31 downto 0);
 		read_data_2_in : in std_logic_vector(31 downto 0);
@@ -40,14 +40,14 @@ entity id_ex_reg is
 		alusrc_out	 : out STD_LOGIC;
 		memread_out  : out STD_LOGIC;
 		memwrite_out : out STD_LOGIC;
-		memtoreg_out : out STD_LOGIC);
+		memtoreg_out : out STD_LOGIC;
 		
     --for forwarding unit
 
     reg_rt_in : in std_logic_vector(4 downto 0);
     reg_rt_out : out std_logic_vector(4 downto 0);
     reg_rs_in : in std_logic_vector(4 downto 0);
-    reg_rs_out : out std_logic_vector(4 downto 0);
+    reg_rs_out : out std_logic_vector(4 downto 0));
 end entity id_ex_reg; 
 
 architecture Behavioral of id_ex_reg is
@@ -57,14 +57,7 @@ begin
 	id_ex_process : process(clk)
 	begin
 		if rising_edge(clk) then
-			if rst = '1' then
-				pc_address_out <= (others => '0');
-				read_data_1_out <= (others => '0');
-				read_data_2_out <= (others => '0');
-				extended_value_out <= (others => '0');
-				instruction_20to16_out <= (others => '0');
-				instruction_15to11_out <= (others => '0');
-				
+			if flush = '1' then
 				regwrite_out <= '0';
 				branch_out	<= '0';
 				regdst_out	<= '0';
@@ -74,13 +67,6 @@ begin
 				memwrite_out <= '0';
 				memtoreg_out <= '0';
 			else
-				pc_address_out <= pc_address_in;
-				read_data_1_out <= read_data_1_in;
-				read_data_2_out <= read_data_2_in;
-				extended_value_out <= extended_value_in;
-				instruction_20to16_out <= instruction_20to16_in;
-				instruction_15to11_out <= instruction_15to11_in;
-				
 				regwrite_out <= regwrite_in;
 				branch_out	<= branch_in;
 				regdst_out	<= regdst_in;
@@ -90,6 +76,13 @@ begin
 				memwrite_out <= memwrite_in;
 				memtoreg_out <= memtoreg_in;
 			end if;
+			
+			pc_address_out <= pc_address_in;
+			read_data_1_out <= read_data_1_in;
+			read_data_2_out <= read_data_2_in;
+			extended_value_out <= extended_value_in;
+			instruction_20to16_out <= instruction_20to16_in;
+			instruction_15to11_out <= instruction_15to11_in;
 		end if;
 	end process;
 
