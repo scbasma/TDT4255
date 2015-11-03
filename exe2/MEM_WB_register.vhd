@@ -16,6 +16,13 @@ entity mem_to_wb is
 
         write_register_in : in std_logic_vector(31 downto 0);
         write_register_out : out std_logic_vector(31 downto 0); 
+		
+		--control
+		reg_write_in  : in STD_LOGIC;
+		reg_write_out    : out STD_LOGIC;
+		mem_to_reg_in  : in STD_LOGIC;
+        mem_to_reg_out   : out STD_LOGIC;
+
     
     )
 end entity mem_to_wb;
@@ -30,17 +37,13 @@ begin
     process(clk) is 
         begin 
         if rising_edge(clk)
-            if rst = '1' then 
-                read_data_out <= (others => '0');
-                alu_result_out <= (others => '0');
-                write_register_out <= (others => '0');
-
-            else 
-                read_data_out <= read_data_in;
-                alu_result_out <= alu_result_in;
-                write_register_out <= write_register_in;
-            end if;
-
+			read_data_out <= read_data_in;
+			alu_result_out <= alu_result_in;
+			write_register_out <= write_register_in;
+			
+			--control
+			reg_write_out <= reg_write_in;
+			mem_to_reg_out <= mem_to_reg_in;
         end if;
     end process;
 end architecture behavioural;
