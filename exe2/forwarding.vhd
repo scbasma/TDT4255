@@ -19,43 +19,44 @@ entity forwarding is
 
         --outputs
         forward_a: out std_logic_vector(1 downto 0);
-        forward_b: out std_logic_vector(1 downto 0);
+        forward_b: out std_logic_vector(1 downto 0)
 
 
     
 
     );
+
 end entity forwarding;
 
 architecture behavioural of forwarding is 
 
 begin
-    forward_a <= '00';
-    forward_b <= '00';
+    forward_a <= "00";
+    forward_b <= "00";
 
     process(reg_rt_id_ex, reg_rs_id_ex, reg_rd_ex_mem, reg_rd_mem_wb, reg_write_ex_mem, reg_write_mem_wb) is 
     begin
     
     --EX HAZARD
-    if reg_write_ex_mem = '1' and reg_rd_ex_mem /= '00000' and reg_rd_ex_mem = reg_rs_id_ex then
-        forward_a <= '10';
+    if reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem = reg_rs_id_ex then
+        forward_a <= "10";
     end if;
-    if reg_write_ex_mem = '1' and reg_rd_ex_mem /= '00000' and reg_rd_ex_mem = reg_rt_id_ex then
-        forward_b <= '10';
-    end if,
+    if reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem = reg_rt_id_ex then
+        forward_b <= "10";
+    end if;
 
     --MEM HAZARD
-    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= '00000'
-    and not (reg_write_ex_mem = '1' and reg_rd_ex_mem /= '00000' and reg_rd_ex_mem /= reg_rt_id_ex)
+    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"
+    and not (reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem /= reg_rt_id_ex)
     and (reg_rd_mem_wb = reg_rs_id_ex) then
-        forward_a <= '01';
+        forward_a <= "01";
     end if;
 
     
-    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= '00000'
-    and not (reg_write_ex_mem = '1' and reg_rd_ex_mem /= '00000' and reg_rd_ex_mem /= reg_rt_id_ex)
+    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"
+    and not (reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem /= reg_rt_id_ex)
     and (reg_rd_mem_wb = reg_rt_id_ex) then
-        forward_b <= '01';
+        forward_b <= "01";
     end if;
 
     
