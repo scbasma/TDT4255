@@ -32,7 +32,7 @@ begin
     begin
         
         if reg_id_ex_memread = '1' and (reg_id_ex_rt = reg_if_id_rs or reg_id_ex_rt = reg_if_id_rt)
-        then stall <= '1'
+        then stall <= '1';
         end if;
 
     end process;
