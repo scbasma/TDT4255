@@ -18,8 +18,10 @@ entity control_unit is
     alu_op      : out std_logic_vector(1 downto 0);
 	 alu_src     : out std_logic;
     reg_write   : out std_logic;
-    mem_write   : out std_logic;
-	 mem_read    : out std_logic);
+    mem_write   : out std_logic
+	 );
+
+
 
 end entity control_unit;
 
@@ -41,7 +43,6 @@ begin -- architecture behavioural
 				alu_src     <= '0';
 				reg_write   <= '0';
 				mem_write   <= '0';	
-				mem_read    <= '0';
         elsif rising_edge(clk) and processor_enable='1' then
             case instruction is
 					when "000000" =>	-- R FORMAT
@@ -52,8 +53,7 @@ begin -- architecture behavioural
 						alu_op      <= "10";
 						alu_src     <= '0';
 						reg_write   <= '1';
-						mem_write   <= '0';	
-						mem_read    <= '0';
+						mem_write   <= '0';
 					when "100011" =>	-- LW
 						reg_dst     <= '0';
 						branch      <= '0';
@@ -63,7 +63,6 @@ begin -- architecture behavioural
 						alu_src     <= '1';
 						reg_write   <= '1';
 						mem_write   <= '0';	
-						mem_read    <= '1';
 					when "101011" =>	-- SW
 						reg_dst     <= '0';
 						branch      <= '0';
@@ -73,7 +72,6 @@ begin -- architecture behavioural
 						alu_src     <= '1';
 						reg_write   <= '0';
 						mem_write   <= '1';	
-						mem_read    <= '0';
 					when "000010" =>  -- JUMP
 						reg_dst     <= '0';
 						branch      <= '0';
@@ -83,7 +81,6 @@ begin -- architecture behavioural
 						alu_src     <= '0';
 						reg_write   <= '0';
 						mem_write   <= '0';	
-						mem_read    <= '0';
 					when "000100" =>  -- BEQ
 						reg_dst     <= '0';
 						branch      <= '1';
@@ -93,7 +90,6 @@ begin -- architecture behavioural
 						alu_src     <= '0';
 						reg_write   <= '0';
 						mem_write   <= '0';	
-						mem_read    <= '0';
 					when "001111" =>  -- LUI
 						reg_dst     <= '0';
 						branch      <= '0';
@@ -102,8 +98,7 @@ begin -- architecture behavioural
 						alu_op      <= "11";
 						alu_src     <= '1';
 						reg_write   <= '1';
-						mem_write   <= '0';	
-						mem_read    <= '0';
+						mem_write   <= '0';
 					when others   => 		
 						reg_dst     <= '0';
 						branch      <= '0';
@@ -113,7 +108,6 @@ begin -- architecture behavioural
 						alu_src     <= '0';
 						reg_write   <= '0';
 						mem_write   <= '0';	
-						mem_read    <= '0';
 				end case;	
          end if;
     end process;

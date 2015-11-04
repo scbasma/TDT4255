@@ -20,7 +20,6 @@ entity id_ex_reg is
 		regdst_in	: in STD_LOGIC;
 		aluop_in	: in std_logic_vector(1 downto 0);
 		alusrc_in	: in STD_LOGIC;
-		memread_in  : in STD_LOGIC;
 		memwrite_in : in STD_LOGIC;
 		memtoreg_in : in STD_LOGIC;
 		
@@ -38,7 +37,6 @@ entity id_ex_reg is
 		regdst_out	 : out STD_LOGIC;
 		aluop_out	 : out std_logic_vector(1 downto 0);
 		alusrc_out	 : out STD_LOGIC;
-		memread_out  : out STD_LOGIC;
 		memwrite_out : out STD_LOGIC;
 		memtoreg_out : out STD_LOGIC;
 		

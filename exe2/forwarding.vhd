@@ -24,7 +24,7 @@ entity forwarding is
 
     
 
-    )
+    );
 end entity forwarding;
 
 architecture behavioural of forwarding is 

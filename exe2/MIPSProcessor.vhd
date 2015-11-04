@@ -38,20 +38,46 @@ architecture Behavioral of MIPSProcessor is
 	signal next_address  : std_logic_vector(DATA_WIDTH-1 downto 0);
 	--ALU PC  signal
 	signal empty : boolean;
+	-- IF_ID_Register 
+	signal instruction : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal pc_address : std_logic_vector(DATA_WIDTH-1 downto 0);
 	-- registers signals
 	signal read_data_1	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal read_data_2	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal write_data    : std_logic_vector(DATA_WIDTH-1 downto 0);
    signal write_reg_add :  std_logic_vector(ADDR_REG_WIDTH-1 downto 0);	
+	-- ID_EX_Register
+	signal pc_address_ex  : std_logic_vector(31 downto 0);
+	signal read_data_1_ex : std_logic_vector(31 downto 0);
+	signal read_data_2_ex : std_logic_vector(31 downto 0);
+	signal extended_value_ex : std_logic_vector(31 downto 0);
+	signal instruction_20to16_ex : std_logic_vector(4 downto 0);
+	signal instruction_15to11_ex : std_logic_vector(4 downto 0);
+	-- EX_MEM_Register
+	signal add_result : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal zero_out : std_logic;
+	signal alu_result_mem : std_logic_vector(31 downto 0);
+	signal write_register_mem : std_logic_vector(31 downto 0);
+	signal reg_write_mem : std_logic;
+   signal branch_mem : std_logic;
+   
+
+	-- control signal outputs
+	signal regwrite_ex : STD_LOGIC;
+	signal branch_ex	 : STD_LOGIC;
+	signal regdst_ex	 : STD_LOGIC;
+	signal aluop_ex	 : std_logic_vector(1 downto 0);
+	signal alusrc_ex	 : STD_LOGIC;
+	signal memwrite_ex : STD_LOGIC;
+	signal memtoreg_ex : STD_LOGIC;
 	-- ALU signals
-	signal zero			:   boolean;	
+	signal zero			: boolean;	
 	signal data_2     : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_result : std_logic_vector(DATA_WIDTH-1 downto 0); -- BECAREFUL alu result is a buffer signal
 	-- ALU Control signal
 	signal alu_op     : std_logic_vector(3 downto 0); 
 	-- Control unit signals
 	signal reg_write  : std_logic :='0';
-	signal write_en   : std_logic :='0';
 	signal op_code    : std_logic_vector(1 downto 0):="00";
 	signal reg_dst    : std_logic :='0';
 	signal branch     : std_logic :='0';
@@ -65,16 +91,16 @@ architecture Behavioral of MIPSProcessor is
 begin
 	
 	-- Mux before Program counter
-	address_in <=	next_address 			when	((branch='0' or zero =false) and jump='0') else
-			std_logic_vector(signed(next_address) + signed(extend_out))	when  (branch='1' and zero =true and jump='0') else
-			std_logic_vector(signed(next_address(31 downto 26)) & (signed(imem_data_in(25 downto 0)))); 
-						
+	
+	
+	
+	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
 	-- Mux before regfile
-	write_reg_add <=	imem_data_in( 20 downto 16) when reg_dst='0' else
-							imem_data_in( 15 downto 11); 
+	write_reg_add <=	instruction_20to16_ex when regdst_ex='0' else
+							instruction_15to11_ex; 
 	-- Mux before ALU
-	data_2 <= 	read_data_2 when alu_src='0' else
-					extend_out; 
+	data_2 <= 	read_data_2_ex when alusrc_ex='0' else
+					extended_value_ex; 
 	-- Mux after Data memory
 	write_data <= 	alu_result when mem_to_reg='0' else 
 						dmem_data_in; 
@@ -84,19 +110,101 @@ begin
 	dmem_data_out<= read_data_2;
 	
 	
-	--process (clk, reset) is
-   --     begin 
-   --     if reset = '1' then 
-   --         imem_address <= x"00";
-   --     elsif rising_edge(clk) then
-	--			imem_address <= address_out(7 downto 0);
-   --      end if;
-   --end process;
+	IF_ID_Register : entity work.if_id_reg 
+	port map(
+		clk						=> clk,
+		rst						=> reset,
+		imem_instruction_in	=> imem_data_in,
+		pc_address_in			=> next_address,
+		imem_instruction_out	=> instruction,
+		pc_address_out			=> pc_address);
 	
+	ID_EX_Register : entity work.id_ex_reg
+  	port map (
+		-- inputs
+      clk			   => clk,
+		rst			   => reset,
+		pc_address_in  => pc_address,
+		read_data_1_in => read_data_1,
+		read_data_2_in => read_data_2,
+		extended_value_in => extend_out,
+		instruction_20to16_in => instruction(20 downto 16),
+		instruction_15to11_in => instruction(15 downto 11),
+		
+		--control signal inputs
+		regwrite_in => reg_write,
+		branch_in	=> branch,
+		regdst_in	=> reg_dst,
+		aluop_in	=> op_code,
+		alusrc_in	=> alu_src,
+		memwrite_in => mem_write,
+		memtoreg_in => mem_to_reg,
+		
+		-- outputs
+		pc_address_out  => pc_address_ex,
+		read_data_1_out => read_data_1_ex,
+		read_data_2_out => read_data_2_ex,
+		extended_value_out => extended_value_ex,
+		instruction_20to16_out =>instruction_20to16_ex,
+		instruction_15to11_out => instruction_15to11_ex,
+		
+		-- control signal outputs
+		regwrite_out => regwrite_ex,
+		branch_out	 => branch_ex,
+		regdst_out	 => regdst_ex,
+		aluop_out	 => aluop_ex,
+		alusrc_out	 => alusrc_ex,
+		memwrite_out => memwrite_ex,
+		memtoreg_out => memtoreg_ex,
+		
+    --for forwarding unit
+    reg_rt_in => ,
+    reg_rt_out => ,
+    reg_rs_in => ,
+    reg_rs_out => );
 	
+	 
+	 EX_MEM_Register : entity work.ex_to_mem 
+    port (
+        clk  => clk,
+        rst  => reset,
+        add_result_in => add_result,
+        add_result_out  => add_result_mem,
+        zero_in  => zero, 
+        zero_out => zero_mem,
+        alu_result_in  => alu_result,
+        alu_result_out => alu_result_mem,
+        read_data_in  => read_data_2_ex,
+        read_data_out => read_data_mem,
+        write_register_in => write_reg_add,
+        write_register_out => write_register_mem,
+
+        --control
+        reg_write_in  => regwrite_ex,
+        reg_write_out  => dmem_data_out,
+        branch_in  => branch_ex,
+        branch_out => branch_mem,
+        mem_to_reg_in  => memtoreg_ex,
+        mem_to_reg_out => memtoreg_mem,   
+        mem_write_in => memwrite_ex,
+        mem_write_out => dmem_write_enable
+    );
+	 
+	MEM_WB_Register : entity work.mem_to_wb
+    port map(
+        clk => clk,
+        rst => reset,
+        alu_result_in => read_data_mem,
+        alu_result_out => ,
+        write_register_in => write_register_mem,
+        write_register_out => ,
+		  mem_to_reg_in  => memtoreg_ex,
+        mem_to_reg_out =>
+    ); 
+	 
 	SignExtend : entity work.SignExtend
 		port map( 
-			data_in  => imem_data_in( 15 downto 0),
+			data_in  => instruction( 15 downto 0),
          data_out => extend_out);
 	
 	RegisterFile : entity work.RegisterFile
@@ -108,8 +216,8 @@ begin
 			clk => clk,
 			rst	=> reset,
 			RegWrite => reg_write,		
-			read_register1_addr => imem_data_in( 25 downto 21), 
-			read_register2_addr => imem_data_in( 20 downto 16),
+			read_register1_addr => instruction( 25 downto 21), 
+			read_register2_addr => instruction( 20 downto 16),
 			write_register_addr => write_reg_add,
 			write_data	=> write_data,
 			read_data1	=> read_data_1,
@@ -117,7 +225,7 @@ begin
 		
 	ALU : entity work.ALU
 		port map (
-			rt  			=> read_data_1,
+			rt  			=> read_data_1_ex,
 			rs				=> data_2,
 			alu_op		=> alu_op ,
 			alu_result	=> alu_result,
@@ -133,8 +241,8 @@ begin
 			
 	ALU_Ctrl : entity work.ALU_Ctrl
 		port map(
-			op_code => op_code,
-			instruction_funct => imem_data_in( 5 downto 0) ,			
+			op_code => aluop_ex,
+			instruction_funct => instruction( 5 downto 0) ,			
 			alu_op =>  alu_op);
 	
 	program_counter : entity work.program_counter
@@ -143,15 +251,13 @@ begin
 			rst		=> reset,
 			write_en => write_en,	
 			PC_in		=> address_in,
-			PC_out	=> address_out); 		
-	
-	
+			PC_out	=> address_out); 	
+			
 	control_unit : entity work.control_unit
 		port map(
 		 clk => clk,
 		 rst => reset,	  
-		 instruction => imem_data_in(31 downto 26),
-		 write_en   => write_en,
+		 instruction => instruction(31 downto 26),
 		 reg_dst    => reg_dst,
 		 branch     => branch,
 		 jump			=> jump,

@@ -32,9 +32,9 @@ entity ex_to_mem is
         branch_in : in std_logic;
         branch_out : out std_logic;
 
-        mem_read_in : in std_logic;
-        mem_read_out : out std_logic;
-        
+        mem_to_reg_in  : in STD_LOGIC;
+        mem_to_reg_out   : out STD_LOGIC;
+		  
         mem_write_in : in std_logic;
         mem_write_out : out std_logic);
         
