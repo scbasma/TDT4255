@@ -259,7 +259,7 @@ begin
 	ALU_Ctrl : entity work.ALU_Ctrl
 		port map(
 			op_code => aluop_ex,
-			instruction_funct => instruction( 5 downto 0) ,			
+			instruction_funct => extended_value_ex( 5 downto 0) ,			
 			alu_op =>  alu_op_ctrl);
 	
 	program_counter : entity work.program_counter
