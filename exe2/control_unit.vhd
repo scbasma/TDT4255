@@ -27,12 +27,10 @@ end entity control_unit;
 
 architecture behavioural of control_unit is
 
-	signal instruction_current : std_logic_vector(5 downto 0);
-
 begin -- architecture behavioural
 
 
-    process (clk, rst,processor_enable) is
+    process (rst,processor_enable,instruction) is
         begin 
         if rst = '1' then 
 				reg_dst     <= '0';
@@ -42,8 +40,9 @@ begin -- architecture behavioural
 				alu_op      <= "00";
 				alu_src     <= '0';
 				reg_write   <= '0';
-				mem_write   <= '0';	
-        elsif rising_edge(clk) and processor_enable='1' then
+				mem_write   <= '0';
+		 
+        elsif processor_enable='1' then
             case instruction is
 					when "000000" =>	-- R FORMAT
 						reg_dst     <= '1';

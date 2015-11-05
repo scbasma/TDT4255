@@ -125,7 +125,7 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
-		branch_taken			=> '0',
+		branch_taken			=> '0', --not processor_enable,
 		do_flush					=> flush_id,
 		--rst						=> reset,
 		imem_instruction_in	=> imem_data_in,
@@ -266,7 +266,7 @@ begin
 		port map(
 			clk      => clk,
 			rst		=> reset,
-			write_en => '1',	
+			write_en => processor_enable,	
 			PC_in		=> address_in,
 			PC_out	=> address_out); 	
 			

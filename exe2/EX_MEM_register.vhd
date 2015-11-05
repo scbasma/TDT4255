@@ -53,11 +53,13 @@ begin
                 reg_write_out <= '0';
                 branch_out <= '0';
                 mem_write_out <= '0';
+					 mem_to_reg_out <= '0';
             else 
 				zero_out <= zero_in;
                 reg_write_out <= reg_write_in;
                 branch_out <= branch_in;
                 mem_write_out <= mem_write_in;
+					 mem_to_reg_out <= mem_to_reg_in;
             end if;
 			add_result_out <= add_result_in;
 			alu_result_out <= alu_result_in;
