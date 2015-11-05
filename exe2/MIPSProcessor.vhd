@@ -105,7 +105,7 @@ begin
 	address_in <= next_address when PC_src='0' else
 						address_branch;
 	
-	PC_src <= branch_mem and std_logic(zero_mem); 
+	PC_src <= branch_mem ; --  and zero_mem; TO MODIFY !!!
 	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
 	-- Mux before regfile
 	write_reg_ex <=	instruction_20to16_ex when regdst_ex='0' else
