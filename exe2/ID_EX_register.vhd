@@ -61,7 +61,6 @@ begin
 				regdst_out	<= '0';
 				aluop_out	<= (others => '0');
 				alusrc_out	<= '0';
-				memread_out  <= '0';
 				memwrite_out <= '0';
 				memtoreg_out <= '0';
 			else
@@ -70,7 +69,6 @@ begin
 				regdst_out	<= regdst_in;
 				aluop_out	<= aluop_in;
 				alusrc_out	<= alusrc_in;
-				memread_out  <= memread_in;
 				memwrite_out <= memwrite_in;
 				memtoreg_out <= memtoreg_in;
 			end if;

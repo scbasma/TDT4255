@@ -11,7 +11,7 @@ entity ALU is
     alu_op: in std_logic_vector(3 downto 0);
 
     alu_result: buffer std_logic_vector(31 downto 0) := std_logic_vector(to_signed(0, 32));
-    zero: out boolean := true
+    zero: out std_logic
 
   );
 
@@ -20,7 +20,9 @@ end ALU;
 architecture behavorial of ALU is
 begin
 
-  zero <= (unsigned(alu_result) = 0);
+	zero <= '1' when(unsigned(alu_result) = 0)else
+				'0';
+
 
   process (alu_op, rt, rs)
   begin

@@ -12,8 +12,8 @@ entity ex_to_mem is
         add_result_out : out std_logic_vector(31 downto 0);
         
 
-        zero_in : in std_logic; 
-        zero_out : out std_logic;
+        zero_in : in STD_LOGIC;
+        zero_out : out STD_LOGIC;
 
         alu_result_in : in std_logic_vector(31 downto 0);
         alu_result_out : out std_logic_vector(31 downto 0);
@@ -21,8 +21,8 @@ entity ex_to_mem is
         read_data_in : in std_logic_vector(31 downto 0);
         read_data_out : out std_logic_vector(31 downto 0);
 
-        write_register_in : in std_logic_vector(31 downto 0);
-        write_register_out : out std_logic_vector(31 downto 0);
+        write_register_in : in std_logic_vector(4 downto 0);
+        write_register_out : out std_logic_vector(4 downto 0);
 
         --control
 
@@ -52,13 +52,11 @@ begin
 				zero_out <= '1';
                 reg_write_out <= '0';
                 branch_out <= '0';
-                mem_read_out <= '0';
                 mem_write_out <= '0';
             else 
 				zero_out <= zero_in;
                 reg_write_out <= reg_write_in;
                 branch_out <= branch_in;
-                mem_read_out <= mem_read_in;
                 mem_write_out <= mem_write_in;
             end if;
 			add_result_out <= add_result_in;
