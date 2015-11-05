@@ -56,7 +56,7 @@ architecture Behavioral of RegisterFile is
 
 begin
 
-	Regfile_Proc: process(clk, rst, Regfile, read_register1_addr, read_register2_addr)
+	Regfile_Proc: process(clk, rst)
 	begin
     	if  (rst='1') then
 			for i in 0 to size-1 loop
@@ -67,11 +67,9 @@ begin
 				Regfile(to_integer(unsigned(write_register_addr)))<=write_data;
 			end if;
 		end if;
-		
-		read_data1 <= Regfile(to_integer(unsigned(read_register1_addr)));		
-		read_data2 <= Regfile(to_integer(unsigned(read_register2_addr)));
 	end process  Regfile_Proc;
-
+	read_data1 <= Regfile(to_integer(unsigned(read_register1_addr)));		
+	read_data2 <= Regfile(to_integer(unsigned(read_register2_addr)));
 
 
 end Behavioral;
