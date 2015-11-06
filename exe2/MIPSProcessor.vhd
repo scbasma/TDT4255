@@ -98,7 +98,7 @@ architecture Behavioral of MIPSProcessor is
 	-- SignExtend
 	signal extend_out : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal write_en : std_logic;
-	
+	signal imem_instruction : std_logic_vector(DATA_WIDTH-1 downto 0);
 begin
 	
 	-- Mux before Program counter
@@ -106,7 +106,8 @@ begin
 			address_branch 			when  ((PC_src='1') and jump='0') else
 			std_logic_vector(signed(next_address(31 downto 26)) & (signed(instruction(25 downto 0)))); 
 	
-	
+	imem_instruction <= imem_data_in when PC_src='0' else
+								x"00000000";
 	write_en <= processor_enable;
 	PC_src <= branch_mem ; --  and zero_mem; TO MODIFY !!!
 	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
@@ -128,9 +129,9 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
-		branch_taken			=> '0', --not 
+		branch_taken			=> PC_src,  --'0', --not PC_src,  --
 		do_flush					=> flush_id,
-		imem_instruction_in	=> imem_data_in,
+		imem_instruction_in	=> imem_instruction,
 		pc_address_in			=> next_address,
 		imem_instruction_out	=> instruction,
 		pc_address_out			=> pc_address);

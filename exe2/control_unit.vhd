@@ -9,6 +9,7 @@ entity control_unit is
     rst : in std_logic;
 
     -- Communication
+
     instruction : in  std_logic_vector(5 downto 0);
 	 processor_enable : in std_logic;
     reg_dst     : out std_logic;
@@ -30,7 +31,7 @@ architecture behavioural of control_unit is
 begin -- architecture behavioural
 
 
-    process (rst,processor_enable,instruction) is
+    process (rst,processor_enable,instruction,flush_if) is
         begin 
         if rst = '1' then 
 				reg_dst     <= '0';
@@ -41,7 +42,6 @@ begin -- architecture behavioural
 				alu_src     <= '0';
 				reg_write   <= '0';
 				mem_write   <= '0';
-		 
         elsif processor_enable='1' then
             case instruction is
 					when "000000" =>	-- R FORMAT
