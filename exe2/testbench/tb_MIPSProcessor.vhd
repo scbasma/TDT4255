@@ -111,11 +111,10 @@ DataMem:			entity work.DualPortMem port map (
 		end WriteInstructionWord;
 		
 		procedure FillInstructionMemory is
-			constant TEST_INSTRS : integer := 126;
+			constant TEST_INSTRS : integer := 137;
 			type InstrData is array (0 to TEST_INSTRS-1) of std_logic_vector(DATA_WIDTH-1 downto 0);
 			variable TestInstrData : InstrData := (			
 				X"8C010001", --lw $1, 1($0)	/$1 =  2
-				
 				X"8C020002", --lw $2, 2($0)	/$2 = 10
 				X"00000020", 
 				X"00000020", 
@@ -186,7 +185,18 @@ DataMem:			entity work.DualPortMem port map (
 				X"00000020", 
 				X"00000020", 
 				X"00000020",				
-				X"AC13000C", --sw $19, 12($0)	/Saving 1 on address 12	
+				X"AC13000C", --sw $19, 12($0)	/Saving 1 on address 12
+				X"00000020", 
+				X"00000020", 
+				X"00000020", 
+				X"00000020",
+				X"08000057", --j 19		/jump to 19
+				X"00000020", 
+				X"00000020", 
+				X"00000020", 
+				X"00000020",
+				X"AC030001", --sw $3, 1($0)	/SKIPPED (Saving 0x60002 on address 1)	
+				X"1000FFFD", --beq $0, $0, -3	/SKIPPED (Branch back three steps)	
 				X"00000020", 
 				X"00000020", 
 				X"00000020", 
@@ -240,7 +250,7 @@ DataMem:			entity work.DualPortMem port map (
 				X"00000020", 
 				X"00000020", 
 				X"00000020", 
-				X"8C010008"				
+				X"1000FFFF" --beq $0, $0, -1	/Branch back one step to hold off
 				--X"8C010001" --lw $1, 1($0)		/$1 =  2
 				);
 		begin

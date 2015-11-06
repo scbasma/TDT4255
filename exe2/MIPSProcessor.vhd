@@ -102,8 +102,11 @@ architecture Behavioral of MIPSProcessor is
 begin
 	
 	-- Mux before Program counter
-	address_in <= next_address when PC_src='0' else
-						address_branch;
+	address_in <=	next_address  	when	((PC_src='0') and jump='0') else
+			address_branch 			when  ((PC_src='1') and jump='0') else
+			std_logic_vector(signed(next_address(31 downto 26)) & (signed(instruction(25 downto 0)))); 
+	
+	
 	write_en <= processor_enable;
 	PC_src <= branch_mem ; --  and zero_mem; TO MODIFY !!!
 	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
