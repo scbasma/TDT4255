@@ -131,6 +131,7 @@ begin
 		clk						=> clk,
 		branch_taken			=> PC_src,  --'0', --not PC_src,  --
 		do_flush					=> flush_id,
+		flush_in 				=> PC_src,
 		imem_instruction_in	=> imem_instruction,
 		pc_address_in			=> next_address,
 		imem_instruction_out	=> instruction,
