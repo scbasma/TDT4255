@@ -20,7 +20,7 @@ begin
 	if_id_process : process (clk)
     begin
 		if rising_edge(clk) then
-			if (branch_taken = '1') then
+			if (branch_taken = '1')  then
 				imem_instruction_out <= (others => '0');
 				pc_address_out <= (others => '0');
 				do_flush <= '1';
