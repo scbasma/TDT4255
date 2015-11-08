@@ -9,7 +9,7 @@ entity program_counter is
 
 	clk		: in std_logic; -- clock
 	rst		: in std_logic;
-        write_en 	: in std_logic;
+	write_en 	: in std_logic;
 	
 	PC_in		: in std_logic_vector(31 downto 0); -- address input
 	PC_out		: out std_logic_vector(31 downto 0) ); -- address output
@@ -26,7 +26,7 @@ begin
     begin
 		 if clk'event and clk='1' then
 			if rst='1' then
-			  PC_out <= (others => '0');
+			  PC_out <= (others => '0');			  
 			elsif rst='0' and write_en='1' then
 			  PC_out <= PC_in;
 			end if;

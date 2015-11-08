@@ -36,6 +36,7 @@ architecture Behavioral of MIPSProcessor is
 	signal address_in		: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal address_out	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal next_address  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	
 	--ALU PC  signal
 	signal empty : STD_LOGIC;
 	-- IF_ID_Register 
@@ -109,7 +110,7 @@ begin
 	imem_instruction <= imem_data_in when PC_src='0' else
 								x"00000000";
 	write_en <= processor_enable;
-	PC_src <= branch_mem ; --  and zero_mem; TO MODIFY !!!
+	PC_src <= branch_mem and zero_mem; --TO MODIFY !!!
 	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
 	-- Mux before regfile
 	write_reg_ex <=	instruction_20to16_ex when regdst_ex='0' else
@@ -129,7 +130,7 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
-		branch_taken			=> PC_src,  --'0', --not PC_src,  --
+		branch_taken			=> PC_src,  --
 		do_flush					=> flush_id,
 		flush_in 				=> PC_src,
 		imem_instruction_in	=> imem_instruction,
@@ -270,7 +271,7 @@ begin
 		port map(
 			clk      => clk,
 			rst		=> reset,
-			write_en => write_en,	
+			write_en => write_en,						
 			PC_in		=> address_in,
 			PC_out	=> address_out); 	
 			

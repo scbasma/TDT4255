@@ -130,12 +130,12 @@ DataMem:			entity work.DualPortMem port map (
 				X"00000020", 
 				X"00000020", 
 				X"00000020",
-				X"10000002", --beq $0, $0, 2	/Jumping to adress +2 = 8		
+				X"10000001", --beq $0, $0, 2	/Jumping to adress +2 = 8		
 				X"8C060001", --lw $1, 1($0)	/$1 =  2
 				X"8C070001", --lw $2, 2($0)	/$2 = 10
 				X"8C060002", --lw $2, 2($0)	/$2 = 10
 				X"8C070002", --lw $2, 2($0)	/$2 = 10
-				X"8C060001", --lw $2, 2($0)	/$2 = 10
+				X"8C050001", --lw $2, 2($0)	/$2 = 10
 				X"00000020", 
 				X"00000020",
 				X"00000020",
@@ -183,7 +183,7 @@ DataMem:			entity work.DualPortMem port map (
 		
 		procedure FillDataMemory is
 		begin
-			WriteDataWord(x"00000004", 1);
+			WriteDataWord(x"00000002", 1);
 			WriteDataWord(x"0000000A", 2);
 		end FillDataMemory;
 		

@@ -31,7 +31,7 @@ architecture behavioural of control_unit is
 begin -- architecture behavioural
 
 
-    process (rst,processor_enable,instruction,flush_if) is
+    process (rst,processor_enable,instruction) is
         begin 
         if rst = '1' then 
 				reg_dst     <= '0';
