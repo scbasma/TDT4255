@@ -9,7 +9,7 @@ entity control_unit is
     rst : in std_logic;
 
     -- Communication
-
+	 flush 		: in std_logic;
     instruction : in  std_logic_vector(5 downto 0);
 	 processor_enable : in std_logic;
     reg_dst     : out std_logic;
@@ -31,9 +31,9 @@ architecture behavioural of control_unit is
 begin -- architecture behavioural
 
 
-    process (rst,processor_enable,instruction) is
+    process (rst,processor_enable,instruction,flush) is
         begin 
-        if rst = '1' then 
+        if rst = '1' or flush='1' then 
 				reg_dst     <= '0';
 				branch      <= '0';
 				jump 			<= '0';

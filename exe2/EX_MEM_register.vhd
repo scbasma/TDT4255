@@ -6,14 +6,6 @@ entity ex_to_mem is
 
     port (
         clk : in std_logic;
-        flush : in std_logic;
-
-        add_result_in : in std_logic_vector(31 downto 0);
-        add_result_out : out std_logic_vector(31 downto 0);
-        
-
-        zero_in : in STD_LOGIC;
-        zero_out : out STD_LOGIC;
 
         alu_result_in : in std_logic_vector(31 downto 0);
         alu_result_out : out std_logic_vector(31 downto 0);
@@ -28,9 +20,6 @@ entity ex_to_mem is
 
         reg_write_in : in std_logic;
         reg_write_out : out std_logic;
-
-        branch_in : in std_logic;
-        branch_out : out std_logic;
 
         mem_to_reg_in  : in STD_LOGIC;
         mem_to_reg_out   : out STD_LOGIC;
@@ -48,23 +37,14 @@ begin
     process (clk) is 
         begin 
         if rising_edge(clk) then
-            if flush = '1' then    
-				zero_out <= '1';
-                reg_write_out <= '0';
-                branch_out <= '0';
-                mem_write_out <= '0';
-					 mem_to_reg_out <= '0';
-            else 
-				zero_out <= zero_in;
+           
                 reg_write_out <= reg_write_in;
-                branch_out <= branch_in;
                 mem_write_out <= mem_write_in;
-					 mem_to_reg_out <= mem_to_reg_in;
-            end if;
-			add_result_out <= add_result_in;
-			alu_result_out <= alu_result_in;
-			read_data_out <= read_data_in;
-			write_register_out <= write_register_in;
+		mem_to_reg_out <= mem_to_reg_in;
+          
+		alu_result_out <= alu_result_in;
+		read_data_out <= read_data_in;
+		write_register_out <= write_register_in;
         end if;
 
 

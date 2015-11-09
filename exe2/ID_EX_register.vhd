@@ -6,8 +6,6 @@ entity id_ex_reg is
   	Port (
 		-- inputs
       clk			   : in STD_LOGIC;
-		flush		   : in STD_LOGIC;
-		pc_address_in  : in std_logic_vector(31 downto 0);
 		read_data_1_in : in std_logic_vector(31 downto 0);
 		read_data_2_in : in std_logic_vector(31 downto 0);
 		extended_value_in : in std_logic_vector(31 downto 0);
@@ -16,7 +14,6 @@ entity id_ex_reg is
 		
 		--control signal inputs
 		regwrite_in : in STD_LOGIC;
-		branch_in	: in STD_LOGIC;
 		regdst_in	: in STD_LOGIC;
 		aluop_in	: in std_logic_vector(1 downto 0);
 		alusrc_in	: in STD_LOGIC;
@@ -24,7 +21,6 @@ entity id_ex_reg is
 		memtoreg_in : in STD_LOGIC;
 		
 		-- outputs
-		pc_address_out  : out std_logic_vector(31 downto 0);
 		read_data_1_out : out std_logic_vector(31 downto 0);
 		read_data_2_out : out std_logic_vector(31 downto 0);
 		extended_value_out : out std_logic_vector(31 downto 0);
@@ -33,7 +29,6 @@ entity id_ex_reg is
 		
 		-- control signal outputs
 		regwrite_out : out STD_LOGIC;
-		branch_out	 : out STD_LOGIC;
 		regdst_out	 : out STD_LOGIC;
 		aluop_out	 : out std_logic_vector(1 downto 0);
 		alusrc_out	 : out STD_LOGIC;
@@ -52,30 +47,20 @@ architecture Behavioral of id_ex_reg is
 
 begin
 	
-	id_ex_process : process(clk,flush)
+	id_ex_process : process(clk)
 	begin
 		if rising_edge(clk) then
 			regwrite_out <= regwrite_in;
-			branch_out	<= branch_in;
 			regdst_out	<= regdst_in;
 			aluop_out	<= aluop_in;
 			alusrc_out	<= alusrc_in;
 			memwrite_out <= memwrite_in;
 			memtoreg_out <= memtoreg_in;
-			pc_address_out <= pc_address_in;
 			read_data_1_out <= read_data_1_in;
 			read_data_2_out <= read_data_2_in;
 			extended_value_out <= extended_value_in;
 			instruction_20to16_out <= instruction_20to16_in;
 			instruction_15to11_out <= instruction_15to11_in;			
-		elsif flush = '1' then
-			regwrite_out <= '0';
-			branch_out	<= '0';
-			regdst_out	<= '0';
-			aluop_out	<= (others => '0');
-			alusrc_out	<= '0';
-			memwrite_out <= '0';
-			memtoreg_out <= '0';
 		end if;
 
 	end process;

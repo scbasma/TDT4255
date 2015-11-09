@@ -36,6 +36,7 @@ architecture Behavioral of MIPSProcessor is
 	signal address_in		: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal address_out	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal next_address  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal flush_pc 		: std_logic;
 	
 	--ALU PC  signal
 	signal empty : STD_LOGIC;
@@ -43,6 +44,7 @@ architecture Behavioral of MIPSProcessor is
 	signal instruction : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal pc_address : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal flush_id : std_logic;
+	signal flush_pc_out : std_logic;
 	-- registers signals
 	signal read_data1_id	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal read_data2_id	: std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -96,6 +98,7 @@ architecture Behavioral of MIPSProcessor is
 	signal jump			: std_logic :='0';
 	signal mem_to_reg : std_logic :='0';
 	signal alu_src    : std_logic :='0';
+	signal flush_ctrl  : std_logic;
 	-- SignExtend
 	signal extend_out : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal write_en : std_logic;
@@ -104,14 +107,14 @@ begin
 	
 	-- Mux before Program counter
 	address_in <=	next_address  	when	((PC_src='0') and jump='0') else
-			address_branch 			when  ((PC_src='1') and jump='0') else
+			add_result 	when  ((PC_src='1') and jump='0') else
 			std_logic_vector(signed(next_address(31 downto 26)) & (signed(instruction(25 downto 0)))); 
-	
-	imem_instruction <= imem_data_in when PC_src='0' else
-								x"00000000";
+	flush_ctrl <= flush_id or flush_pc_out;
+	imem_instruction <= imem_data_in ;
 	write_en <= processor_enable;
-	PC_src <= branch_mem and zero_mem; --TO MODIFY !!!
-	add_result <= 	std_logic_vector(signed(pc_address_ex) + signed(extended_value_ex));				
+	PC_src <= '1' when ((branch='1') and (read_data1_id=read_data2_id)) else
+		   '0'; --TO MODIFY !!!
+	add_result <= 	std_logic_vector(signed(pc_address) + signed(extend_out));				
 	-- Mux before regfile
 	write_reg_ex <=	instruction_20to16_ex when regdst_ex='0' else
 							instruction_15to11_ex; 
@@ -130,11 +133,12 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
-		branch_taken			=> PC_src,  --
+		branch_taken			=> PC_src,
 		do_flush					=> flush_id,
-		flush_in 				=> PC_src,
+		flush_pc_in				=> flush_pc,
+		flush_pc_out			=> flush_pc_out,
 		imem_instruction_in	=> imem_instruction,
-		pc_address_in			=> next_address,
+		pc_address_in			=> address_out,
 		imem_instruction_out	=> instruction,
 		pc_address_out			=> pc_address);
 	
@@ -142,9 +146,6 @@ begin
   	port map (
 		-- inputs
       clk			   => clk,
-		flush  			=> flush_id,
---		rst			   => reset,
-		pc_address_in  => pc_address,
 		read_data_1_in => read_data1_id,
 		read_data_2_in => read_data2_id,
 		extended_value_in => extend_out,
@@ -153,7 +154,6 @@ begin
 		
 		--control signal inputs
 		regwrite_in => reg_write,
-		branch_in	=> branch,
 		regdst_in	=> reg_dst,
 		aluop_in	=> alu_op_id,
 		alusrc_in	=> alu_src,
@@ -161,7 +161,6 @@ begin
 		memtoreg_in => mem_to_reg,
 		
 		-- outputs
-		pc_address_out  => pc_address_ex,
 		read_data_1_out => read_data_1_ex,
 		read_data_2_out => read_data_2_ex,
 		extended_value_out => extended_value_ex,
@@ -170,7 +169,6 @@ begin
 		
 		-- control signal outputs
 		regwrite_out => regwrite_ex,
-		branch_out	 => branch_ex,
 		regdst_out	 => regdst_ex,
 		aluop_out	 => aluop_ex,
 		alusrc_out	 => alusrc_ex,
@@ -187,11 +185,6 @@ begin
 	 EX_MEM_Register : entity work.ex_to_mem 
     port map(
         clk  => clk,
-		  flush => flush_id, 
-        add_result_in => add_result,
-        add_result_out  => address_branch,
-        zero_in  => zero, 
-        zero_out => zero_mem,
         alu_result_in  => alu_result,
         alu_result_out => alu_result_mem,
         read_data_in  => read_data_2_ex,
@@ -202,8 +195,6 @@ begin
         --control
         reg_write_in  => regwrite_ex,
         reg_write_out  => regwrite_mem,
-        branch_in  => branch_ex,
-        branch_out => branch_mem,
         mem_to_reg_in  => memtoreg_ex,
         mem_to_reg_out => memtoreg_mem,   
         mem_write_in => memwrite_ex,
@@ -271,7 +262,9 @@ begin
 		port map(
 			clk      => clk,
 			rst		=> reset,
-			write_en => write_en,						
+			write_en => write_en,
+			flush_in => flush_id,
+			flush_out => flush_pc,			
 			PC_in		=> address_in,
 			PC_out	=> address_out); 	
 			
@@ -279,6 +272,7 @@ begin
 		port map(
 		 clk => clk,
 		 rst => reset,	  
+		 flush => flush_ctrl,
 		 instruction => instruction(31 downto 26),
 		 reg_dst    => reg_dst,
 		 branch     => branch,
