@@ -103,6 +103,9 @@ architecture Behavioral of MIPSProcessor is
 	signal extend_out : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal write_en : std_logic;
 	signal imem_instruction : std_logic_vector(DATA_WIDTH-1 downto 0);
+	--Foward signals 
+	signal forwardA : std_logic_vector(1 downto 0);
+	signal forwardB : std_logic_vector(1 downto 0);
 begin
 	
 	-- Mux before Program counter
@@ -215,6 +218,17 @@ begin
 		  reg_write_out => regwrite_wb
     ); 
 	 
+	Fowarding : entity work.forwarding
+    port map(
+        reg_rt_id_ex => instruction_20to16_ex ,
+        reg_rs_id_ex => instruction_15to11_ex ,
+        reg_rd_ex_mem => write_reg_mem,
+        reg_rd_mem_wb =>  write_reg_wb,
+        reg_write_ex_mem => regwrite_mem,
+        reg_write_mem_wb => regwrite_wb,
+        forward_a => forwardA,
+        forward_b => forwardB
+		  );
 	SignExtend : entity work.SignExtend
 		port map( 
 			data_in  => instruction( 15 downto 0),
