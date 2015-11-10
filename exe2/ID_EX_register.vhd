@@ -36,9 +36,7 @@ entity id_ex_reg is
 		memtoreg_out : out STD_LOGIC;
 		
     --for forwarding unit
-
-    reg_rt_in : in std_logic_vector(4 downto 0);
-    reg_rt_out : out std_logic_vector(4 downto 0);
+ 
     reg_rs_in : in std_logic_vector(4 downto 0);
     reg_rs_out : out std_logic_vector(4 downto 0));
 end entity id_ex_reg; 
@@ -51,6 +49,7 @@ begin
 	begin
 		if rising_edge(clk) then
 			regwrite_out <= regwrite_in;
+			reg_rs_out <= reg_rs_in;
 			regdst_out	<= regdst_in;
 			aluop_out	<= aluop_in;
 			alusrc_out	<= alusrc_in;

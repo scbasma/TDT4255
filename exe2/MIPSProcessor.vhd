@@ -46,9 +46,13 @@ architecture Behavioral of MIPSProcessor is
 	signal flush_id : std_logic;
 	signal flush_pc_out : std_logic;
 	-- registers signals
+	signal read_data1	: STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
+	signal read_data2	:  STD_LOGIC_VECTOR (DATA_WIDTH-1 downto 0);
 	signal read_data1_id	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal read_data2_id	: std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal mem_write_id : STD_LOGIC;
+	signal mux_data1 : std_logic;
+	signal mux_data2 : std_logic;
 	-- ID_EX_Register
 	signal pc_address_ex  : std_logic_vector(31 downto 0);
 	signal read_data_1_ex : std_logic_vector(31 downto 0);
@@ -56,6 +60,7 @@ architecture Behavioral of MIPSProcessor is
 	signal extended_value_ex : std_logic_vector(31 downto 0);
 	signal instruction_20to16_ex : std_logic_vector(4 downto 0);
 	signal instruction_15to11_ex : std_logic_vector(4 downto 0);
+	signal reg_rs_ex : std_logic_vector(4 downto 0);
 	signal write_reg_ex : std_logic_vector(4 downto 0);
 	-- control signal outputs
 	signal regwrite_ex : STD_LOGIC;
@@ -88,6 +93,8 @@ architecture Behavioral of MIPSProcessor is
 	signal zero			: STD_LOGIC;	
 	signal data_2     : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_result : std_logic_vector(DATA_WIDTH-1 downto 0); -- BECAREFUL alu result is a buffer signal
+	signal alu_src_a  : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal alu_src_b  : std_logic_vector(DATA_WIDTH-1 downto 0);
 	-- ALU Control signal
 	signal alu_op_ctrl     : std_logic_vector(3 downto 0); 
 	-- Control unit signals
@@ -108,6 +115,8 @@ architecture Behavioral of MIPSProcessor is
 	signal forwardB : std_logic_vector(1 downto 0);
 begin
 	
+	
+	
 	-- Mux before Program counter
 	address_in <=	next_address  	when	((PC_src='0') and jump='0') else
 			add_result 	when  ((PC_src='1') and jump='0') else
@@ -115,14 +124,35 @@ begin
 	flush_ctrl <= flush_id or flush_pc_out;
 	imem_instruction <= imem_data_in ;
 	write_en <= processor_enable;
-	PC_src <= '1' when ((branch='1') and (read_data1_id=read_data2_id)) else
+	PC_src <= '1' when (jump='1' or ((branch='1') and (read_data1_id=read_data2_id))) else
 		   '0'; --TO MODIFY !!!
 	add_result <= 	std_logic_vector(signed(pc_address) + signed(extend_out));				
 	-- Mux before regfile
 	write_reg_ex <=	instruction_20to16_ex when regdst_ex='0' else
 							instruction_15to11_ex; 
 	-- Mux before ALU
-	data_2 <= 	read_data_2_ex when alusrc_ex='0' else
+	alu_src_a <= read_data_1_ex when forwardA="00" else
+					 alu_result_mem when forwardA="10" else
+					 write_data_wb  when forwardA="01";
+	alu_src_b <= read_data_2_ex when forwardB="00" else
+					 alu_result_mem when forwardB="10" else
+					 write_data_wb  when forwardB="01";
+	
+	mux_data1 <= '1' when (instruction(25 downto 21)=write_reg_wb) else
+						'0';
+						
+	mux_data2 <= '1' when (instruction(20 downto 16)=write_reg_wb) else
+						'0';
+		
+	read_data1_id <= read_data1 when mux_data1='0' else
+							write_data_wb;							
+	
+	read_data2_id <= read_data2 when mux_data2='0' else
+							write_data_wb;	
+	
+	
+	
+	data_2 <= 	alu_src_b when alusrc_ex='0' else
 					extended_value_ex; 
 	-- Mux after Data memory
 	write_data_wb <= 	alu_result_wb when memtoreg_wb='0' else 
@@ -179,10 +209,8 @@ begin
 		memtoreg_out => memtoreg_ex,
 		
     --for forwarding unit
-    reg_rt_in => "00000",
-    reg_rt_out => "00000",
-    reg_rs_in => "00000",
-    reg_rs_out => "00000");
+    reg_rs_in => instruction(25 downto 21),
+    reg_rs_out => reg_rs_ex);
 	
 	 
 	 EX_MEM_Register : entity work.ex_to_mem 
@@ -190,7 +218,7 @@ begin
         clk  => clk,
         alu_result_in  => alu_result,
         alu_result_out => alu_result_mem,
-        read_data_in  => read_data_2_ex,
+        read_data_in  => alu_src_b,
         read_data_out => read_data_mem,
         write_register_in => write_reg_ex,
         write_register_out => write_reg_mem,
@@ -221,7 +249,7 @@ begin
 	Fowarding : entity work.forwarding
     port map(
         reg_rt_id_ex => instruction_20to16_ex ,
-        reg_rs_id_ex => instruction_15to11_ex ,
+        reg_rs_id_ex => reg_rs_ex ,
         reg_rd_ex_mem => write_reg_mem,
         reg_rd_mem_wb =>  write_reg_wb,
         reg_write_ex_mem => regwrite_mem,
@@ -247,12 +275,12 @@ begin
 			read_register2_addr => instruction( 20 downto 16),
 			write_register_addr => write_reg_wb,
 			write_data	=> write_data_wb,
-			read_data1	=> read_data1_id,
-			read_data2	=> read_data2_id);
+			read_data1	=> read_data1,
+			read_data2	=> read_data2);
 		
 	ALU : entity work.ALU
 		port map (
-			rt  			=> read_data_1_ex,
+			rt  			=> alu_src_a,
 			rs				=> data_2,
 			alu_op		=> alu_op_ctrl ,
 			alu_result	=> alu_result,

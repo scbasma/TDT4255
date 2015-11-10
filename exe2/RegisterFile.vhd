@@ -68,6 +68,7 @@ begin
 			end if;
 		end if;
 	end process  Regfile_Proc;
+	
 	read_data1 <= Regfile(to_integer(unsigned(read_register1_addr)));		
 	read_data2 <= Regfile(to_integer(unsigned(read_register2_addr)));
 
