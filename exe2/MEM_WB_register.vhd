@@ -28,9 +28,14 @@ architecture behavioural of mem_to_wb is
 
 begin 
 
-    process(clk) is 
+    process(clk, rst) is 
         begin 
-        if rising_edge(clk) then
+		if rst='1' then
+			alu_result_out <= (others => '0');
+			write_register_out <= (others => '0');
+			reg_write_out <= '0';
+			mem_to_reg_out <= '0';
+        elsif rising_edge(clk) then
 
 			alu_result_out <= alu_result_in;
 			write_register_out <= write_register_in;

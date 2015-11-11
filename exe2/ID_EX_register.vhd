@@ -5,7 +5,8 @@ use ieee.numeric_std.all;
 entity id_ex_reg is
   	Port (
 		-- inputs
-      clk			   : in STD_LOGIC;
+		rst			   : in STD_LOGIC;
+        clk			   : in STD_LOGIC;
 		read_data_1_in : in std_logic_vector(31 downto 0);
 		read_data_2_in : in std_logic_vector(31 downto 0);
 		extended_value_in : in std_logic_vector(31 downto 0);
@@ -45,9 +46,23 @@ architecture Behavioral of id_ex_reg is
 
 begin
 	
-	id_ex_process : process(clk)
+	id_ex_process : process(clk, rst)
 	begin
-		if rising_edge(clk) then
+		if rst='1' then
+			read_data_1_out <= (others => '0');
+			read_data_2_out <= (others => '0');
+			extended_value_out <= (others => '0');
+			instruction_20to16_out <= (others => '0');
+			instruction_15to11_out <= (others => '0');
+			regwrite_out <= '0';
+			regdst_out	 <= '0';
+			aluop_out	 <= (others => '0');
+			alusrc_out	 <= '0';
+			memwrite_out <= '0';
+			memtoreg_out <= '0';
+			reg_rs_out <= (others => '0');
+			
+		elsif rising_edge(clk) then
 			regwrite_out <= regwrite_in;
 			reg_rs_out <= reg_rs_in;
 			regdst_out	<= regdst_in;

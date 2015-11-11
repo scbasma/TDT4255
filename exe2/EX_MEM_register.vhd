@@ -6,6 +6,7 @@ entity ex_to_mem is
 
     port (
         clk : in std_logic;
+		rst : in std_logic;
 
         alu_result_in : in std_logic_vector(31 downto 0);
         alu_result_out : out std_logic_vector(31 downto 0);
@@ -34,9 +35,16 @@ architecture behavioural of ex_to_mem is
 
 begin
 
-    process (clk) is 
+    process (clk, rst) is 
         begin 
-        if rising_edge(clk) then
+		if rst='1' then
+			alu_result_out <= (others => '0');
+			read_data_out <= (others => '0');
+			write_register_out <= (others => '0');
+			reg_write_out <= '0';
+			mem_to_reg_out <= '0';
+			mem_write_out <= '0';
+        elsif rising_edge(clk) then
            
                 reg_write_out <= reg_write_in;
                 mem_write_out <= mem_write_in;
