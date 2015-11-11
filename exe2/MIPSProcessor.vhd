@@ -113,19 +113,25 @@ architecture Behavioral of MIPSProcessor is
 	--Foward signals 
 	signal forwardA : std_logic_vector(1 downto 0);
 	signal forwardB : std_logic_vector(1 downto 0);
+	--Structural hazard signals
+	signal stall : std_logic;
+	signal load_signal : std_logic;
 begin
 	
 	
+	--Structural hazard
+	load_signal <= '1' when (regwrite_ex='1' and memwrite_ex='0' and  alusrc_ex='1') else
+						'0';
 	
 	-- Mux before Program counter
 	address_in <=	next_address  	when	((PC_src='0') and jump='0') else
 			add_result 	when  ((PC_src='1') and jump='0') else
 			std_logic_vector(signed(next_address(31 downto 26)) & (signed(instruction(25 downto 0)))); 
-	flush_ctrl <= flush_id or flush_pc_out;
+	flush_ctrl <= flush_id or flush_pc_out;-- or stall;
 	imem_instruction <= imem_data_in ;
 	write_en <= processor_enable;
 	PC_src <= '1' when (jump='1' or ((branch='1') and (read_data1_id=read_data2_id))) else
-		   '0'; --TO MODIFY !!!
+		   '0'; 
 	add_result <= 	std_logic_vector(signed(pc_address) + signed(extend_out));				
 	-- Mux before regfile
 	write_reg_ex <=	instruction_20to16_ex when regdst_ex='0' else
@@ -158,7 +164,8 @@ begin
 	write_data_wb <= 	alu_result_wb when memtoreg_wb='0' else 
 						dmem_data_in; 
 						
-	imem_address <= address_out(ADDR_WIDTH-1 downto 0);
+	imem_address <= address_out(ADDR_WIDTH-1 downto 0) when stall='0' else
+						std_logic_vector(signed(address_out(ADDR_WIDTH-1 downto 0)) - 1);
 	dmem_address <= alu_result_mem(ADDR_WIDTH-1 downto 0);
 	dmem_data_out<= read_data_mem;
 	
@@ -166,7 +173,7 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
-		branch_taken			=> PC_src,
+		flush						=> PC_src,
 		do_flush					=> flush_id,
 		flush_pc_in				=> flush_pc,
 		flush_pc_out			=> flush_pc_out,
@@ -245,7 +252,14 @@ begin
 		  reg_write_in  => regwrite_mem,
 		  reg_write_out => regwrite_wb
     ); 
-	 
+	StructHazard : entity work.struct_hazard_detect 
+    Port map(        
+        load_signal     	=> load_signal,
+        reg_id_ex_rt			=> instruction_20to16_ex,
+        reg_if_id_rt			=> instruction(20 downto 16),
+        reg_if_id_rs			=> instruction(25 downto 21),
+        stall					=> stall   
+    ); 
 	Fowarding : entity work.forwarding
     port map(
         reg_rt_id_ex => instruction_20to16_ex ,
