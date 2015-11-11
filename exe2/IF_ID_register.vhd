@@ -13,17 +13,18 @@ entity if_id_reg is
 		imem_instruction_in		: in std_logic_vector(31 downto 0);
 		pc_address_in			: in std_logic_vector(31 downto 0);
 		imem_instruction_out	: out std_logic_vector(31 downto 0);
-		pc_address_out			: out std_logic_vector(31 downto 0));
-    stall : in std_logic;
+		pc_address_out			: out std_logic_vector(31 downto 0);
+		stall : in std_logic);
 end entity if_id_reg;
 
 
 architecture Behavioral of if_id_reg is
-    signal last_instruction : in std_logic_vector(31 downto 0);
+    signal last_instruction : std_logic_vector(31 downto 0);
+	 signal internal_instruction_out : std_logic_vector(31 downto 0);
 begin
     
     
-  imem_instruction_out <= last_instruction when stall='1' 
+  internal_instruction_out <= last_instruction when stall='1' 
                           else (others => '0') when rst='1'
                           else imem_instruction_in;
 
@@ -36,7 +37,7 @@ begin
 		elsif rising_edge(clk) then
 				pc_address_out <= pc_address_in;
 				flush_pc_out <= flush_pc_in;
-
+				imem_instruction_out<= internal_instruction_out;
         last_instruction <= imem_instruction_in;
 			if flush = '0' then
 				do_flush <= '0';

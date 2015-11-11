@@ -120,14 +120,14 @@ begin
 	
 	
 	--Structural hazard
-	load_signal <= '1' when (regwrite_ex='1' and memwrite_ex='0' and  alusrc_ex='1') else
+	load_signal <= '1' when (regwrite_ex='1' and memwrite_ex='0' and  alusrc_ex='1' and memtoreg_ex='1') else
 						'0';
 	
 	-- Mux before Program counter
 	address_in <=	next_address  	when	((PC_src='0') and jump='0') else
 			add_result 	when  ((PC_src='1') and jump='0') else
 			std_logic_vector(signed(next_address(31 downto 26)) & (signed(instruction(25 downto 0)))); 
-	flush_ctrl <= flush_id or flush_pc_out;-- or stall;
+	flush_ctrl <= flush_id or flush_pc_out or stall;
 	imem_instruction <= imem_data_in ;
 	write_en <= processor_enable;
 	PC_src <= '1' when (jump='1' or ((branch='1') and (read_data1_id=read_data2_id))) else
@@ -173,6 +173,8 @@ begin
 	IF_ID_Register : entity work.if_id_reg 
 	port map(
 		clk						=> clk,
+		rst						=> reset,
+		stall						=> stall,
 		flush						=> PC_src,
 		do_flush					=> flush_id,
 		flush_pc_in				=> flush_pc,
@@ -186,6 +188,7 @@ begin
   	port map (
 		-- inputs
       clk			   => clk,
+		rst						=> reset,
 		read_data_1_in => read_data1_id,
 		read_data_2_in => read_data2_id,
 		extended_value_in => extend_out,
@@ -223,6 +226,7 @@ begin
 	 EX_MEM_Register : entity work.ex_to_mem 
     port map(
         clk  => clk,
+		  rst						=> reset,
         alu_result_in  => alu_result,
         alu_result_out => alu_result_mem,
         read_data_in  => alu_src_b,
@@ -318,6 +322,7 @@ begin
 		port map(
 			clk      => clk,
 			rst		=> reset,
+			stall    => stall,
 			write_en => write_en,
 			flush_in => flush_id,
 			flush_out => flush_pc,			

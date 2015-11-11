@@ -35,28 +35,29 @@ begin
 
     process(reg_rt_id_ex, reg_rs_id_ex, reg_rd_ex_mem, reg_rd_mem_wb, reg_write_ex_mem, reg_write_mem_wb) is 
     begin
-     forward_a <= "00";
-    forward_b <= "00";
-	  --MEM HAZARD
-    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"
-    and (reg_rd_ex_mem /= reg_rs_id_ex)
-    and (reg_rd_mem_wb = reg_rs_id_ex) then
-        forward_a <= "01";
-    end if;
-
+     
     
-    if reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"
-    and ( reg_rd_ex_mem /= reg_rt_id_ex)
-    and (reg_rd_mem_wb = reg_rt_id_ex) then
-        forward_b <= "01";
-    end if;
+	  --MEM HAZARD
+    
+ 
     --EX HAZARD
     if reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem = reg_rs_id_ex then
         forward_a <= "10";
-
-    end if;
+	 elsif reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"
+    --and (reg_rd_ex_mem /= reg_rs_id_ex)
+    and (reg_rd_mem_wb = reg_rs_id_ex) then
+        forward_a <= "01";
+	else 
+			forward_a <= "00";
+    end if;	  
+--and ( reg_rd_ex_mem /= reg_rt_id_ex)
+    
     if reg_write_ex_mem = '1' and reg_rd_ex_mem /= "00000" and reg_rd_ex_mem = reg_rt_id_ex then
        forward_b <= "10";
+    elsif reg_write_mem_wb = '1' and reg_rd_mem_wb /= "00000"  and (reg_rd_mem_wb = reg_rt_id_ex) then
+        forward_b <= "01";
+    else 
+		forward_b <= "00";
     end if;
 
    
