@@ -139,10 +139,10 @@ begin
 	-- Mux before ALU
 	alu_src_a <= read_data_1_ex when forwardA="00" else
 					 alu_result_mem when forwardA="10" else
-					 write_data_wb  when forwardA="01";
+					 write_data_wb;
 	alu_src_b <= read_data_2_ex when forwardB="00" else
 					 alu_result_mem when forwardB="10" else
-					 write_data_wb  when forwardB="01";
+					 write_data_wb;
 	
 	mux_data1 <= '1' when (instruction(25 downto 21)=write_reg_wb) else
 						'0';

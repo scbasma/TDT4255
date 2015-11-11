@@ -107,7 +107,16 @@ begin -- architecture behavioural
 						alu_src     <= '0';
 						reg_write   <= '0';
 						mem_write   <= '0';	
-				end case;	
+				end case;
+			else
+				reg_dst     <= '0';
+				branch      <= '0';
+				jump 			<= '0';
+				mem_to_reg  <= '0';
+				alu_op      <= "00";
+				alu_src     <= '0';
+				reg_write   <= '0';
+				mem_write   <= '0';
          end if;
     end process;
  
