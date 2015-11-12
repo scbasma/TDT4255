@@ -17,7 +17,7 @@ architecture behavioural of tb_ALU is
 
   signal alu_result: std_logic_vector(31 downto 0) := (others => '0');
   
-  signal zero: boolean := false;
+  signal zero: std_logic := '0';
 
   -- clock  
   constant clk_period : time := 20 ns;
