@@ -16,7 +16,6 @@ architecture behavioural of tb_control_unit is
   signal rst : std_logic := '0';
   signal instruction      : std_logic_vector(5 downto 0) := (others => '0');
   signal processor_en : std_logic;
-  signal mem_read				: std_logic;
   signal reg_dst            : std_logic;
   signal branch            : std_logic;
   signal jump	            : std_logic;
@@ -25,6 +24,7 @@ architecture behavioural of tb_control_unit is
   signal alu_op             : std_logic_vector(1 downto 0);
   signal reg_write          : std_logic;
   signal mem_write          : std_logic;
+  signal flush 				: std_logic := '0';
 
   -- clock
   constant clk_period : time      := 20 ns;
@@ -39,7 +39,6 @@ begin  -- architecture behavioural
       clk         => clk,
       rst         => rst,
       instruction => instruction,
-		mem_read    => mem_read,
       reg_dst     => reg_dst,
       branch      => branch,
 		jump        => jump,
@@ -47,6 +46,7 @@ begin  -- architecture behavioural
       alu_op      => alu_op,
 		alu_src     => alu_src,
       reg_write	  => reg_write,
+	  flush => flush,
       mem_write   => mem_write);
 
   -- clock generation
@@ -57,7 +57,6 @@ begin  -- architecture behavioural
 
 	procedure check_init_output is
     begin  -- procedure check_init_output
-      check(mem_read = '0', "mem_read incorrect idle output");
       check(reg_dst = '0', "reg dst incorrect idle output");
       check(branch = '0', "branch incorrect idle output");
 		check(jump = '0', "jump incorrect idle output");
@@ -78,7 +77,6 @@ begin  -- architecture behavioural
 
     procedure check_rformat_output is
     begin  -- procedure check_fetch_output
-      check(mem_read = '0', "mem_read incorrect r-format output");
       check(reg_dst = '1', "reg dst incorrect r-format output");
       check(branch = '0', "branch incorrect r-format output");
 		check(jump = '0', "jump incorrect r-format output");      
@@ -91,7 +89,6 @@ begin  -- architecture behavioural
 
     procedure check_lw_output is
     begin  -- procedure check_decode_output
-      check(mem_read = '1', "mem_read incorrect lw output");
       check(reg_dst = '0', "reg dst incorrect lw output");
       check(branch = '0', "branch incorrect lw output");
 		check(jump = '0', "jump incorrect lw output");
@@ -104,7 +101,6 @@ begin  -- architecture behavioural
     
 	 procedure check_sw_output is
     begin  
-      check(mem_read = '0', "mem_read incorrect sw output");
       check(reg_dst = '0', "reg dst incorrect sw output");
       check(branch = '0', "branch incorrect sw output");		
 		check(jump = '0', "jump incorrect sw output");
@@ -117,7 +113,6 @@ begin  -- architecture behavioural
 	 
     procedure check_beq_output is
     begin  -- procedure check_pop_b_output
-      check(mem_read = '0', "mem_read incorrect beq output");
       check(reg_dst = '0', "reg dst incorrect beq output");
       check(branch = '1', "branch incorrect beq output");
 		check(jump = '0', "jump incorrect beq output");
@@ -130,7 +125,6 @@ begin  -- architecture behavioural
 	 
     procedure check_jump_output is
     begin  -- procedure check_pop_a_output
-      check(mem_read = '0', "mem_read incorrect jump output");
       check(reg_dst = '0', "reg dst incorrect jump output");
       check(branch = '0', "branch incorrect jump output");
 		check(jump = '1', "jump incorrect jump output");
@@ -143,7 +137,6 @@ begin  -- architecture behavioural
 	 
 	  procedure check_lui_output is
     begin  -- procedure check_pop_a_output
-      check(mem_read = '0', "mem_read incorrect lui output");
       check(reg_dst = '0', "reg dst incorrect lui output");
       check(branch = '0', "branch incorrect lui output");
 		check(jump = '0', "jump incorrect lui output");
